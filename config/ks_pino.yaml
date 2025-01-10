@@ -1,0 +1,108 @@
+default: &DEFAULT
+
+  #General
+  # For computing compression
+  n_params_baseline: None
+  verbose: True
+  arch: tfno
+
+  #Distributed computing
+  distributed:
+    use_distributed: False #False in darcy
+    wireup_info: 'mpi'
+    wireup_store: 'tcp'
+    model_parallel_size: 2
+    seed: 666
+
+  # FNO related
+  tfno:
+    n_modes: [16,64] #for t,x
+    data_channels: None #will be determined by pde-onfo, see config_arch in main_code #1(pde)+1(dim:postion)  (i.e. in_channels, but should use the name data_ here (model_dispatcher L55))
+    # data_channels: 3
+    # n_modes_height: 16
+    # n_modes_width: 16
+    hidden_channels: 32
+    projection_channels: 64
+    n_layers: 4
+    domain_padding: [0.068125,0] #0.078125 #None (one-sided padding the time dimension for accurate dericvative)
+    domain_padding_mode: 'one-sided' #symmetric
+    fft_norm: 'forward'
+    norm: 'group_norm'
+    skip: 'linear'
+    implementation: 'factorized'
+    separable: 0
+    preactivation: 0
+    
+    use_mlp: 1
+    mlp:
+        expansion: 0.5
+        dropout: 0
+
+    factorization: None
+    rank: 1.0
+    fixed_rank_modes: None
+    dropout: 0.0
+    tensor_lasso_penalty: 0.0
+    joint_factorization: False
+    fno_block_precision: 'full' # or 'half', 'mixed'
+    stabilizer: None # or 'tanh'
+
+  # Optimizer
+  opt:
+    n_epochs: 1000 
+    learning_rate: 5e-2 # 5e-3
+    training_loss: 'l2'
+    loss_type: 'sum' #'mean' or sum
+    weight_decay: 1e-4 #1e-4 # 1e-4
+    amp_autocast: False
+    scheduler_T_max: 500 # For cosine only, typically take n_epochs
+    scheduler_patience: 5 # For ReduceLROnPlateau only
+    scheduler: 'StepLR' # Or 'CosineAnnealingLR' OR 'ReduceLROnPlateau'
+    step_size: 100 #60
+    gamma: 0.7 #0.5
+
+  # Dataset related
+  data:
+    batch_size: 32
+    pino2_batch_num: 8
+    # n_train: 8000  # will be assigned from lists below, with 0-th element for train
+    # train_resolution: 128
+    # n_tests: [100, 24]
+    test_resolutions: ['128train_set','128test',1024]  #only used as wandb plot label
+    test_batch_sizes: [16, 16,16]
+    num_data: [12000,8000,105,100,100,30] #first three: pde input, les data, dns data; last three: number of test data.
+    resolution: [128,128,1024,128,128,1024]
+    t_start: [20,70,15,30,30,20]  #phy time
+    t_interval: [5,5,1,5,5,1] #if 0: only choose one t0.
+    train_tag: [1,1,1,2,0,0] #2: test on training set. 1: training data. 0: test data
+    t_predict: 0.1  #phy time, operator leanrs to approximate S(t), t\in[0,t_predict]
+    traj_for_train: [1500,1500,3] #1600 in total for N=128.  pde input, les data, dns data;
+    
+    positional_encoding: True
+    encode_input: False
+    encode_output: False
+
+    t_step_min: 32
+    repeat: 16
+
+
+  # Patching
+  patching:
+    levels: 0
+    padding: 0
+    stitching: False
+
+  # Weights and biases
+  wandb:
+    log: True
+    name: None # If None, config will be used but you can override it here
+    group: '' 
+    project: # add project name here
+    entity:  # add your username here
+    sweep: False
+    log_output: True
+    log_test_interval: 1
+    pde: ks
+    pino: 1
+    loss: 128fno #1024fno, pde
+    savemd: False

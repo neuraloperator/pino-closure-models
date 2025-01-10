@@ -1,0 +1,96 @@
+default: &DEFAULT
+
+  #General
+  # For computing compression
+  n_params_baseline: None
+  verbose: True
+
+  arch: tfno
+
+
+  #Distributed computing
+  distributed:
+    use_distributed: False #False in darcy
+    wireup_info: 'mpi'
+    wireup_store: 'tcp'
+    model_parallel_size: 2
+    seed: 666
+
+  # FNO related
+  tfno:
+    n_modes: [8,16,16] #for t,x
+    data_channels: None #will be determined by pde-onfo, see config_arch in main_code #1(pde)+1(dim:postion)  (i.e. in_channels, but should use the name data_ here (model_dispatcher L55))
+
+    hidden_channels: 32
+    projection_channels: 64
+    n_layers: 4
+    domain_padding: [0.125,0,0] #None #0.078125 #None
+    domain_padding_mode: 'one-sided' #symmetric
+    fft_norm: 'forward'
+    norm: 'group_norm'
+    skip: 'linear'
+    implementation: 'factorized'
+    separable: 0
+    preactivation: 0
+    
+    use_mlp: 1
+    mlp:
+        expansion: 0.5
+        dropout: 0
+
+    factorization: None
+    rank: 1.0
+    fixed_rank_modes: None
+    dropout: 0.0
+    tensor_lasso_penalty: 0.0
+    joint_factorization: False
+    fno_block_precision: 'full' # or 'half', 'mixed'
+    stabilizer: None # or 'tanh'
+
+ 
+  # Dataset related
+  data:
+    t_predict: 1  #phy time
+
+    positional_encoding: True
+    encode_input: False
+    encode_output: False
+
+    t_step_min: 32
+    repeat: 16
+  plot:
+    n_traj: 100 #400  #1000
+    btz_traj: 50 #100
+    t_start: 20 #for using LES data as init
+    t_run: 3000 #16000 #physical time: 
+    t_start_save: 1800
+    starting_plot: 50
+    repeat_ini: 32
+
+    acc_k: 63 # default setting:0
+    eng_k: 63 #default setting: 0
+
+
+  # Patching
+  patching:
+    levels: 0
+    padding: 0
+    stitching: False
+
+  # Weights and biases
+  wandb:
+    log: True
+    name: None # If None, config will be used but you can override it here
+    group: '' 
+    project: # add project name here
+    entity:  # add your username here
+    sweep: False
+    log_output: True
+    log_test_interval: 1
+    pde: kf 
+    pino: 1
+    re: 100
+    loss: pde #cgs, frs, pde: the loss function to three stages
+    savemd: False #True
+    model_use: 0 # only one key: 0
+    model_use_type: 3 # Model after stage 1: supervised loss with CGS data. Model after stage 2: supervised loss with FRS data. Model after stage 3: pde loss

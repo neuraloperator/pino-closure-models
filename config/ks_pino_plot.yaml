@@ -1,0 +1,110 @@
+default: &DEFAULT
+
+  #General
+  # For computing compression
+  n_params_baseline: None
+  verbose: True
+  # arch: 'tfno2d'
+  arch: tfno
+
+  #Distributed computing
+  distributed:
+    use_distributed: False #False in darcy
+    wireup_info: 'mpi'
+    wireup_store: 'tcp'
+    model_parallel_size: 2
+    seed: 666
+
+  # FNO related
+  tfno:
+    n_modes: [16,64] #for t,x
+    data_channels: None #where be determined by pde-onfo, see config_arch in main_code #1(pde)+1(dim:postion)  (i.e. in_channels, but should use the name data_ here (model_dispatcher L55))
+    # data_channels: 3
+    # n_modes_height: 16
+    # n_modes_width: 16
+    hidden_channels: 32
+    projection_channels: 64
+    n_layers: 4
+    domain_padding: [0.068125,0] #None #0.078125 #None
+    domain_padding_mode: 'one-sided' #symmetric
+    fft_norm: 'forward'
+    norm: 'group_norm'
+    skip: 'linear'
+    implementation: 'factorized'
+    separable: 0
+    preactivation: 0
+    
+    use_mlp: 1
+    mlp:
+        expansion: 0.5
+        dropout: 0
+
+    factorization: None
+    rank: 1.0
+    fixed_rank_modes: None
+    dropout: 0.0
+    tensor_lasso_penalty: 0.0
+    joint_factorization: False
+    fno_block_precision: 'full' # or 'half', 'mixed'
+    stabilizer: None # or 'tanh'
+
+
+  # Dataset related
+  data: # Irrelevant to plotting/ inference.
+    batch_size: 16
+    pino2_batch_num: 2 # concate pino2_btz_num of 128 with 1 1024 togethor
+    pino2_batch_lambda: 1 # balancing loss from two dataset(1024 [0] and 128 [1]) with 0+lam*1
+    # n_train: 8000  # will be assigned from lists below, with 0-th element for train
+    # train_resolution: 128
+    # n_tests: [100, 24]
+  
+    test_resolutions: ['128train_set','128test',1024,'1024train']  #only used as wandb plot label
+    test_batch_sizes: [16, 16,16,16]
+    num_data: [1,8000,105,100,100,30,16]
+    resolution: [128,128,1024,128,128,1024,1024]
+    t_start: [20,70,15,30,30,20,20]  #phy time
+    t_interval: [5,5,1,5,5,1,1] #if 0: only choose one t0.
+    train_tag: [1,1,1,2,0,0,2] #2: test on train set
+    t_predict: 0.1  #phy time
+    traj_for_train: [1500,1500,3] #1600 in total for N=128
+    positional_encoding: True
+    encode_input: False
+    encode_output: False
+
+    t_step_min: 32
+    repeat: 16
+  plot:
+    # model_id: 2 #0-4
+    n_traj: 1 #400  #1000
+    btz_traj: 1 #1
+    t_run: 150 #150 #80
+    starting_plot: 50
+    repeat_ini: 32
+    use_hi: 0 #False
+
+    acc_k: 63 # default setting:0
+    eng_k: 63 #default setting: 0
+
+
+  # Patching
+  patching:
+    levels: 0
+    padding: 0
+    stitching: False
+
+  # Weights and biases
+  wandb:
+    log: True
+    name: None # If None, config will be used but you can override it here
+    group: '' 
+    project: # add project name here
+    entity:  # add your username here
+    sweep: False
+    log_output: True
+    log_test_interval: 1
+    pde: ks #ks/kf/ns2d/ns3d
+    pino: 1
+    loss: pde #128fno,1024fno, pde, mno
+    savemd: False
+    model_type: pde #128,1024
+    model_use: 200_15k #200, old   #model after 1024 training, this is key in model_dict[1024] # 0407 new: 200_15k; 200_25k

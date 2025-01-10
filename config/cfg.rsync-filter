@@ -1,0 +1,6 @@
+# Include only .yaml files
++ *.yaml
+# + *.sh
+# + *.mat
++ *.txt
+- *

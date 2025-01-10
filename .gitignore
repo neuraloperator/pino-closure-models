@@ -1,0 +1,37 @@
+.git/
+.idea/
+__MACOSX/
+__pycache__/
+config/*.txt
+drawn_1119/
+gpu/
+wandb/
+temp_save/
+save_save/
+plot/
+main/wandb/
+
+
+
+#all path
+et --hard 2fa2eb8
+*.txt
+*.doc
+*.docx
+*.pyc
+*.m
+*.mat
+*.npy
+*.png
+*.jpg
+*.pt
+*.zip
+*.xlsx
+*.pdf
+*.pptx
+
+#root path
+/te*.py
+temp*.py
+tmp*.py
+for_debug.py

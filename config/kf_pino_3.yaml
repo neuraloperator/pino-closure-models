@@ -1,0 +1,133 @@
+default: &DEFAULT
+
+  #General
+  # For computing compression
+  n_params_baseline: None
+  verbose: True
+  # arch: 'tfno2d'
+  arch: tfno
+
+
+  #Distributed computing
+  distributed:
+    use_distributed: False #False in darcy
+    wireup_info: 'mpi'
+    wireup_store: 'tcp'
+    model_parallel_size: 2
+    seed: 666
+
+  # FNO related
+  tfno:
+    n_modes: [8,16,16] #for t,x
+    data_channels: None #will be determined by pde-onfo, see config_arch in main_code #1(pde)+1(dim:postion)  (i.e. in_channels, but should use the name data_ here (model_dispatcher L55))
+    hidden_channels: 32
+    projection_channels: 64
+    n_layers: 4
+    domain_padding: [0.125,0,0] #None #0.078125 #None
+    domain_padding_mode: 'one-sided' #symmetric
+    fft_norm: 'forward'
+    norm: 'group_norm'
+    skip: 'linear'
+    implementation: 'factorized'
+    separable: 0
+    preactivation: 0
+    
+    use_mlp: 1
+    mlp:
+        expansion: 0.5
+        dropout: 0
+
+    factorization: None
+    rank: 1.0
+    fixed_rank_modes: None
+    dropout: 0.0
+    tensor_lasso_penalty: 0.0
+    joint_factorization: False
+    fno_block_precision: 'full' # or 'half', 'mixed'
+    stabilizer: None # or 'tanh'
+
+  # Optimizer
+  opt:
+    n_epochs: 1530
+    renew_opt: False
+    learning_rate: 4e-3 # 5e-3
+    learning_rate_1: 1.2e-3 # 5e-3
+    training_loss: ['l2','l2']
+    train_loss_func: ['rel','rel']
+    pino3:
+      res: 64
+      data_batch: 1 # number of data batches per pde batch  
+      lam: 2e-3
+      lam_data: 1e-6 # will be decreased
+      begin: 10 #epoch starting using pde loss
+      end: 1290 #
+      gamma: 1.8 #increase pde loss weight
+      period: 60 #every period (increase lambda)
+      pre_pde_btc: 10 # 8*10=80<110
+      lr_inc: 1.1 # every period_epoch, increase lr by
+      step_end: 1000 #after pino3.end: scheduler.step_size change into this
+      gm_end: 0.9 # and gamma change into this one
+      pde_smp_bch: 1 #*8 pde loss each epoch; use -1 if don't want to continue early in for loop
+      change_sch_epc: 220 # epoch that change scheduler into following:
+      new_gm: 0.7 #larger gm, step in latter increasing lambda_pde period
+      new_stp: 40
+    use_pde: [0,0] 
+    # pde_lam: 1e-7
+    pde_loss_method: t_fc_x_f # t_fc_x_f or t_fd_x_f
+    loss_type: 'sum' #'mean' or sum
+    weight_decay: 1e-4 #1e-4 # 1e-4
+    amp_autocast: False
+
+    scheduler_T_max: 500 # For cosine only, typically take n_epochs
+    scheduler_patience: 5 # For ReduceLROnPlateau only
+    scheduler: 'StepLR' # Or 'CosineAnnealingLR' OR 'ReduceLROnPlateau'
+    step_size: 20 #60
+    gamma: 0.6 #0.5
+
+    check_mem: 0
+
+  # Dataset related
+  data:
+    batch_size: 8  
+    test_resolutions: ['128test','128train','128train_pde','128test_end']  #only used as wandb plot label
+    test_batch_sizes: [ 2,2,2,2]
+    num_data: [1,1020,110,32,16,16,16] #dns:100
+    resolution: [16,128,128,128,128,128,128]
+    t_start: [180,81,50,200,80,81,300]  #phy time
+    t_interval: [4,2,3,10,3,3,10] #if 0: only choose one t0. 16: 500, 128:400
+    train_tag: [1,1,1,0,2,2,0] #2: test on train set
+    t_predict: 1  #phy time
+    traj_for_train: [90,7,1] #100 in total for N=16, 10 for n=128
+    train_on_testset: 0 #testing on the training set:1. else(normal): 0
+    positional_encoding: True
+    encode_input: False
+    encode_output: False
+
+    t_step_min: 32
+    repeat: 1
+
+
+  # Patching
+  patching:
+    levels: 0
+    padding: 0
+    stitching: False
+
+  
+  # Weights and biases
+  wandb:
+    log: True
+    name: None # If None, config will be used but you can override it here
+    group: '' 
+    project: # add project name here
+    entity:  # add your username here
+    sweep: False
+    log_output: True
+    log_test_interval: 1
+    pde: kf 
+    pino: 1
+    re: 100
+    loss: pde #cgs, frs, pde: the loss function to three stages
+    savemd: False #True
+    model_use: 0 # only one key: 0
+    model_use_type: 2 # Model after stage 1: supervised loss with CGS data. Model after stage 2: supervised loss with FRS data. Model after stage 3: pde loss
