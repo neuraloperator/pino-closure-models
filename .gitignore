@@ -20,11 +20,12 @@ et --hard 2fa2eb8
 *.docx
 *.pyc
 *.m
-*.mat
+# *.mat
 *.npy
 *.png
 *.jpg
-*.pt
+# *.pt
+kf/model_save/*.pt
 *.zip
 *.xlsx
 *.pdf
