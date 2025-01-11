@@ -1,10 +1,4 @@
-import torch.nn.functional as F
-from timeit import default_timer
-from matplotlib import pyplot as plt
-from pdb import set_trace as st
-import cv2
-from pytorch_msssim import  ms_ssim, ssim
-import wandb
+
 import sys
 import json
 import torch
@@ -21,8 +15,8 @@ USE_WANDB = True
 if USE_WANDB:
     wandb.init(
         dir="./wandb_files",
-        entity="peterwg",
-        project='ks_closure',
+        entity="add your username here",
+        project='add project name here',
         name=str(sys.argv[1]),
     )
 
@@ -67,8 +61,7 @@ for ep in range(epochs):
 
             if IS_KF:
                 output = output.reshape(-1, 4, 16, 16)
-            #print(torch.unique(output))
-            #st()
+
             loss = l1loss(y, output) + l2loss(y, output)
             loss.backward()
             optimizer.step()

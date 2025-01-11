@@ -3,7 +3,7 @@ from utilities import *
 
 import torch.fft as fft
 from pdb import set_trace as st
-from vision_transformer import vit_b_ks
+# from vision_transformer import vit_b_ks
 """
 data_loader
 batch_size=16 ('btz')  (variable: batch_size)
@@ -14,7 +14,7 @@ Samples of data_loader:
 """
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-a = torch.load('KS_128_0503.pt',map_location=device) #4,351,1024
+a = torch.load('KS_train_set.pt',map_location=device) #4,351,1024
 
 b=a**2
 c=fft.irfft(fft.rfft(b,norm='forward')[:65], norm='forward')  # shape: 4*351*128
@@ -58,6 +58,8 @@ test_loader = DataLoader(
     #pin_memory=True, #(=(data_devise=='cpu'),
     persistent_workers=False,
 )
+
+
 '''model =  vit_b_ks(num_classes=128).cuda() #nn.Transformer(nhead=16, num_encoder_layers=12)
 
 for index_, data in enumerate(data_loader):
@@ -65,9 +67,7 @@ for index_, data in enumerate(data_loader):
     y = data['y'].cuda()
     output = model(x)'''
 
-# import neuralop
-# import neuralop.wcw.tool_wcw as wcw
-# wcw.check_dataloader(data_loader)
+
 
 
 

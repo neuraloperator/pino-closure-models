@@ -2,14 +2,13 @@ import torch
 import torch.fft as fft
 
 import math
-import neuralop
-import neuralop.wcw.tool_wcw as wcw
+
 
 from utilities3 import *
 from utilities import *
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-w = torch.load('../reachout/KF_64_0503.pt',map_location=device) #1,341,64,64
+w = torch.load('KF_train_set.pt',map_location=device) #1,341,64,64
 u = w_to_u_ntxy(w)
 def filter(v):
     vh = fft.fft2(v, norm='forward')
@@ -34,7 +33,7 @@ del w,u,input_yTr,input_xTr
 from vision_transformer import vit_b_kf
 model =  vit_b_kf(num_classes=1024).to(device)
 
-model.load_state_dict(torch.load('kf_final.pt'), strict=True)
+model.load_state_dict(torch.load('kf_model.pt'), strict=True)
 model.eval()
 
 
@@ -141,25 +140,13 @@ class NavierStokes2d(object):
                     2 * math.pi / self.L2) * self.k2 * fft.rfft2(v * w))
 
             tau=self.closure_tau(w)#n,2,2,s,s
-            # wcw.sss(tau)
+
             tau_h=fft.rfft2(tau).permute(0,3,4,1,2)#n,16,9,2,2
-            # wcw.sss(tau_h)
+
             tau_h=(self.d_tensor@tau_h).squeeze(-2) #n,s,s,2
-            # wcw.sss(tau_h)
+
             w_h_new=-clos*(self.d2*tau_h[...,0]+self.d1*tau_h[...,1])
             nonlin+=w_h_new
-
-
-            # stress=self.s_tensor(w,real=True)#b,x,y,2,2
-            # stress_norm=torch.norm(stress,dim=[-1,-2])#b,x,y
-            # # wcw.sss(stress_norm)
-            # stress=stress_norm.unsqueeze(dim=-1).unsqueeze(-1)*stress#bxy22
-            # stress_h=(self.d_tensor@fft.rfft2(stress,dim=[-4,-3])).squeeze(-2)# b,x,y,2
-            # # wcw.sss(stress_h)
-            # w_h_new=-self.d2*stress_h[...,0]+self.d1*stress_h[...,1]
-            # # wcw.sss(w_h_new)
-            # nonlin-=(((clos*self.h)**2).real)*w_h_new
-
 
 
         if f_h is not None:
@@ -178,8 +165,6 @@ class NavierStokes2d(object):
         s=half_s+half_s.transpose(dim0=-1,dim1=-2)
         if real:
             s=fft.irfft2(s,dim=[-4,-3])
-            # wcw.sss(s)
-
 
         return s
 
@@ -203,14 +188,13 @@ class NavierStokes2d(object):
         return min(0.5*self.h/max_speed, 0.5*(self.h**2)/mu,dtmin)
 
     def advance(self, w, f=None, T=1.0, Re=100, adaptive=True, delta_t=1e-3,clos=None,delta_t0=1e-2):
-        # wcw.ppp(w[0])
+
         #Rescale Laplacian by Reynolds number
         GG = (1.0/Re)*self.G
 
         #Move to Fourier space
         w_h = fft.rfft2(w)
-        # wcw.sss(w)
-        # wcw.sss(w_h)
+
         if f is not None:
             f_h = fft.rfft2(f)
         else:
@@ -255,9 +239,5 @@ class NavierStokes2d(object):
     
     def __call__(self, w, f=None, T=1.0, Re=100, adaptive=True, delta_t=1e-3):
         return self.advance(w, f, T, Re, adaptive, delta_t)
-#
-# a=torch.rand(2,3,132,64)
-# print(a.shape)
-# b=fft.rfft2(a)
-# print(b.shape)
+
 

@@ -3,7 +3,7 @@ from utilities3 import *
 
 import torch.fft as fft
 from pdb import set_trace as st
-from vision_transformer import vit_b_kf
+# from vision_transformer import vit_b_kf
 
 """
 data_loader
@@ -15,7 +15,7 @@ Samples of data_loader:
 """
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-w = torch.load('KF_64_0503.pt',map_location=device) #1,341,64,64
+w = torch.load('KF_train_set.pt',map_location=device) #1,341,64,64
 
 u = w_to_u_ntxy(w)
 
@@ -85,11 +85,3 @@ for index_, data in enumerate(data_loader):
     y = data['y'].cuda()
     output = model(x)
     output = output.reshape(-1, 4, 16, 16)'''
-    
-
-# import neuralop
-# import neuralop.wcw.tool_wcw as wcw
-# wcw.check_dataloader(data_loader)
-
-
-

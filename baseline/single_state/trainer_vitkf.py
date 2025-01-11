@@ -1,23 +1,14 @@
-import torch.nn.functional as F
-from timeit import default_timer
-from matplotlib import pyplot as plt
-from pdb import set_trace as st
-# import cv2
-# from pytorch_msssim import  ms_ssim, ssim
-import sys
-import json
-import torch
+
 import wandb
 from utilities3 import *
 from torch import nn
 import pytorch_warmup as warmup #
 
 import time as tm
-import neuralop
-import neuralop.wcw.tool_wcw as wcw
-from neuralop.utils import get_wandb_api_key, count_model_params
-counter_file = "counter.txt"
-file_id=wcw.id_filename(counter_file)
+import neuralop_advance
+
+from neuralop_advance.utils import get_wandb_api_key, count_model_params
+
 
 
 load_per=50 #pritn and load
@@ -38,7 +29,7 @@ print("success!!!!")
 wandb_name = "_".join(
     f"{var}"
     for var in [
-        str(file_id),
+
         learning_rate,
         epochs,
         warm_ep
@@ -48,16 +39,10 @@ wandb_args = dict(
     # config=config,
     name=wandb_name,
     group='',
-    project='closure_single_trsfmr',
-    entity='wcwcal'
+    project="add your project name here",
+    entity="add your username here",
 )
-# if USE_WANDB:
-#     wandb.init(
-#         dir="./wandb_files",
-#         entity="wcwcal",
-#         project='closure_single_trsfmr',
-#         name=file_id,
-#     )
+
 if USE_WANDB:
     wandb.init(**wandb_args)
 
@@ -108,14 +93,12 @@ for ep in range(epochs):
             #x += (torch.rand(x.shape)-0.5).cuda()*x.abs().max()*1e-1
             y = data['y'].cuda().float()
 
-            # wcw.sss(x) # 16, 2, 48, 48]
-            # wcw.sss(y) # 16, 4, 48, 48
+
             output = model(x) #btz, 9216 (=4,48,48)
-            # wcw.sss(output)
+
             if IS_KF:
                 output = output.reshape(-1, 4, res, res)  #(-1,4,16,16) for Re100
-            #print(torch.unique(output))
-            #st()
+
             loss = l1loss(y, output) + l2loss(y, output)
             loss.backward()
             optimizer.step()
@@ -127,7 +110,7 @@ for ep in range(epochs):
         if USE_WANDB and ep %load_per==0:
             wandb.log({"epoch": ep, "train_loss": train_loss})
             print(f'epoch: {ep}, train_loss: {train_loss}',end=' ')
-            # wcw.mmm(ep) # shown: 188M; nvidia-smi: 916M
+
 
 
     # test

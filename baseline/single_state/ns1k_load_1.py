@@ -6,17 +6,18 @@ import torch.fft as fft
 # from vision_transformer import vit_b_kf
 import neuralop
 import neuralop.wcw.tool_wcw as wcw
+
 """
 data_loader
 batch_size=16 ('btz')  (variable: batch_size)
 Samples of data_loader:
-{'x': tensor(btz,16,16,2)
-'y': tensor(btz,2,2,16,16)}
+{'x': tensor(btz,48,48,2)
+'y': tensor(btz,2,2,48,48)}
 
 """
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-w = torch.load('1_385_128_128_dns256.pt',map_location=device) #1,385,128,128
+w = torch.load('ns1w_train_set.pt',map_location=device) 
 
 u = w_to_u_ntxy(w)
 
@@ -83,19 +84,3 @@ test_loader = DataLoader(
     #pin_memory=True, #(=(data_devise=='cpu'),
     persistent_workers=False,
 )
-
-'''model =  vit_b_322(num_classes=1024).cuda() #nn.Transformer(nhead=16, num_encoder_layers=12)
-
-for index_, data in enumerate(data_loader):
-    x = data['x'].permute(0, 3, 1, 2).cuda()
-    y = data['y'].cuda()
-    output = model(x)
-    output = output.reshape(-1, 4, 16, 16)'''
-    
-
-# import neuralop
-# import neuralop.wcw.tool_wcw as wcw
-# wcw.check_dataloader(data_loader)
-
-
-

@@ -14,9 +14,7 @@
 #
 # Initial condition and grid setup
 import torch
-import neuralop.wcw.tool_wcw as wcw
-counter_file = "counter.txt"
-file_id=wcw.id_filename(counter_file)
+
 proj_name="KS_solver"
 
 # torch.manual_seed(0)
@@ -30,10 +28,9 @@ N_proj=128
 # timegrid=0.25
 timegrid=0.01
 
-#!!!!
+
 half_period=3 #domain=2pi*half_period, basis =e^{k x/half_period}
-# half_period=16 #domain=2pi*half_period, basis =e^{k x/half_period}
-space_scaling=half_period*2*torch.pi # original=1,correct=32pi or 32k pi
+space_scaling=half_period*2*torch.pi
 
 #initial_condition_choose
 '''    functions = {
@@ -51,8 +48,7 @@ choose_coef=0
     '''
 M=64# number of points in complex unit circle to do average
 
-#150,100,0.25
-#5w, 10w
+
 tmax=150#00
 nmax=round(tmax/timegrid)#epoch
 num_plot=150 #num of plot capture
@@ -61,16 +57,13 @@ dt_save=nplt*timegrid
 
 eta_stb_change=0.10
 
-Nsum=1 #400
-
-file_name=f"T={tmax},niu={niu},N={N},dt={timegrid},6pi,dtsave={dt_save},sample={Nsum}_sgs_({file_id})."
-# file_name=f"__T={tmax} ic={choose_ic},niu={niu},N={N},tmgd={timegrid},evel={choose_coef},eta={eta_stb_change}({file_id})."
+Nsum=400 #4 number of traj
 
 
-'''sgs related'''
-cs=0.005j # 0.1-1
-clos_d=1
+
+
+
 x_grid=space_scaling/N
 
 start_plot_time=20
-pre_check=0 # check before save
+

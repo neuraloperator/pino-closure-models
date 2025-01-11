@@ -301,13 +301,10 @@ class VisionTransformer(nn.Module):
         # print(x.shape)
         # x = x[:, 0]
         x=((self.pool_before_head(x.transpose(-1,-2))).transpose(-1,-2)).view(x.shape[0],-1)
-        # print(x.shape)
+
 
         x = self.heads(x)
-        # print(x.shape)
 
-        # wcw.mmm()
-        # exit()
         return x
 
 
