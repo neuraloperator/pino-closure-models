@@ -71,7 +71,7 @@ To visualize the results, run `python final_compare_stat.py`. Codes related to v
 ### Baseline Methods
 See detailes in `baseline/`.
 
-## NS equation (small Re)
+## NS equation (small Reynolds number)
 **Repo Structure**
 ```
 kf/
@@ -132,7 +132,7 @@ To visualize the results, run `python final_compare_stat.py`. Codes related to v
 See detailes in `baseline/`.
 
 
-## NS equation (high Re)
+## NS equation (high Reynolds number)
 
 **Repo Structure**
 ```

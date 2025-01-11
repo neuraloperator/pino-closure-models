@@ -33,8 +33,8 @@ input_yTr=input_y[:368]
 y_normalizer = UnitGaussianNormalizer(input_yTr)
 del w,u,input_yTr,input_xTr
 
-from vision_transformer_ns1k import vit_b_ns1k
-model =  vit_b_ns1k(num_classes=9216).to(device)
+from vision_transformer_ns1w import vit_b_ns1w
+model =  vit_b_ns1w(num_classes=9216).to(device)
 
 model.load_state_dict(torch.load('kf_1000_final.pt'), strict=True)
 model.eval()

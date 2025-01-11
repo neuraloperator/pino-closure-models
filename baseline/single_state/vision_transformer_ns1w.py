@@ -655,7 +655,7 @@ def vit_b_kf(*, weights: Optional[ViT_B_32_Weights] = None, progress: bool = Tru
         **kwargs,
     )
 
-def vit_b_ns1k(*, weights: Optional[ViT_B_32_Weights] = None, progress: bool = True, **kwargs: Any) -> VisionTransformer:
+def vit_b_ns1w(*, weights: Optional[ViT_B_32_Weights] = None, progress: bool = True, **kwargs: Any) -> VisionTransformer:
     """
     Constructs a vit_b_32 architecture from
     `An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale <https://arxiv.org/abs/2010.11929>`_.
