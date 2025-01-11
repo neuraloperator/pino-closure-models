@@ -9,10 +9,10 @@ from ks.data_dict import *
 import plot_stat_new as stat
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-cgs=torch.load('../data/stat_save/cgs.pt')
-pino=torch.load('../data/stat_save/pino.pt')
-sgs=torch.load('../data/stat_save/sgs.pt')
-single=torch.load('../data/stat_save/single.pt')
+cgs=torch.load('../data/stat_save/cgs.pt') # result for coarsegrid simulations
+pino=torch.load('../data/stat_save/pino.pt') # results for pino model
+sgs=torch.load('../data/stat_save/sgs.pt') # results for smagorinsky closure model
+single=torch.load('../data/stat_save/single.pt') # results for single-state learning-based closure model
 
 plotlist=[cgs,sgs,single,pino]
 taglst=['CGS','Eddy-Visc.','Single','Ours']
