@@ -136,15 +136,12 @@ def mmm(tag=None):
 def mmm_cpu(tag=None):
     import psutil
 
-    # 获取程序开始前 CPU 的初始内存占用情况
-    initial_memory = psutil.virtual_memory().used
 
-    # 在程序的中间某个步骤打印 CPU 的内存占用情况
-    # 假设这是程序的某个中间步骤
+    initial_memory = psutil.virtual_memory().used
     print(f"CPU Memory Usage at {tag}:")
     print("Used Memory:", (psutil.virtual_memory().used - initial_memory)/1024/1024, "MB")
 
-    # 在程序结束时打印 CPU 的最终内存占用情况
+
     print("CPU Memory Usage at End:")
     print("Used Memory:", psutil.virtual_memory().used / 1024 / 1024, "MB")
     print()
@@ -186,12 +183,12 @@ def check_pt(file_path):#str
 def check_npy(file_name):#str
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    # 使用np.load加载.npy文件
+
     data = np.load(file_name)
-    # 打印数据结构和形状
+
     print(f"Data Structure: {type(data)}")
     print(f"Data Shape:{data.shape}")
-    # 如果是多维数组，可以打印更多信息
+
     if isinstance(data, np.ndarray) and data.ndim > 1:
         print(f"Data Type:{data.dtype}")
         print(f"Number of Dimensions:{data.ndim}")
@@ -202,19 +199,19 @@ def check_dict(input_dict):
     for key, value in input_dict.items():
         print(f"Key: {key}")
 
-        # 打印值的类型
+
         value_type = type(value)
         print(f"  Value Type: {value_type}")
 
-        # 如果值是 NumPy 数组，则打印形状
+
         if isinstance(value, np.ndarray):
             print(f"  Value Shape: {value.shape}")
 
-        # 如果值是 PyTorch 张量，则打印形状
+
         elif torch.is_tensor(value):
             print(f"  Value Shape: {value.shape}")
 
-        print()  # 为了更好的可读性，每个键值对之间添加空行
+        print()
 
 
 
