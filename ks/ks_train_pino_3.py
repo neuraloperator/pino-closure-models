@@ -4,6 +4,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import neuralop_base
 sys.modules['neuralop'] = neuralop_base
 import wandb

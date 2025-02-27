@@ -3,6 +3,11 @@ from torch.cuda import amp
 from timeit import default_timer
 import pathlib
 import sys
+
+# import os
+# base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+# sys.path.insert(0, base_dir)
+
 import neuralop_advance
 sys.modules['neuralop'] = neuralop_advance
 import my_tools as wcw
