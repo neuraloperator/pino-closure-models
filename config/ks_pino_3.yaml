@@ -4,6 +4,7 @@ default: &DEFAULT
   # For computing compression
   n_params_baseline: None
   verbose: True
+  arch: tfno
 
   #Distributed computing
   distributed:
