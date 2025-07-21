@@ -15,8 +15,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import neuralop_advance
-sys.modules['neuralop'] = neuralop_advance
+import neuralop
 
 import wandb
 
@@ -29,17 +28,17 @@ from neuralop import get_model
 from neuralop.training import setup
 from neuralop.training.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
 from neuralop.utils import get_wandb_api_key, count_model_params
-import my_tools as wcw
+
 
 from t1_trainer import Trainer
 from data_dict import *
 from losses import *
 from data.kf_data_load_pino import load_data_small
-
+import my_tools as myt
 #basic control
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 counter_file = "counter.txt"
-file_id=wcw.id_filename(counter_file)
+file_id=myt.id_filename(counter_file)
 
 # Read the configuration
 config_name = "default"
@@ -113,7 +112,7 @@ config.verbose = config.verbose and is_logger
 
 
 
-wcw.ppp(is_logger)
+
 
 # Print config to screen
 if config.verbose and is_logger:
@@ -135,7 +134,7 @@ alldata={'train':[],'test':[]}
 
 def gen_data_pad(x,dt,dim=1,dT=None,t0:int=0,t_end:int=None,single=0,rr=None):#x.shape=NTXY ,dim(T)=1
 
-    y=wcw.slicing_split(x,dim=dim,dt=dt,dT=dT,t0=t0,t_end=t_end,single=single) #shape=NKTXY
+    y=myt.slicing_split(x,dim=dim,dt=dt,dT=dT,t0=t0,t_end=t_end,single=single) #shape=NKTXY
     if rr==None:
         if y.shape[2]*config.data.repeat>=config.data.t_step_min:
             rr=config.data.repeat
@@ -172,14 +171,14 @@ for i in range(len(config.data.t_start)):
         y = torch.repeat_interleave(y, dim=2, repeats=repeat_y_time)
         x = torch.repeat_interleave(x, dim=2, repeats=repeat_y_time)
 
-        wcw.sss(x)
-        wcw.sss(y)
+        myt.sss(x)
+        myt.sss(y)
         save_to = 'train' if (config.data.train_tag[i] == 1) else 'test'
         alldata[save_to].append({'x': x.reshape(-1, repeat_y_time, b.shape[-2], b.shape[-1]),
                                  'y': y.reshape(-1, repeat_y_time, b.shape[-2], b.shape[-1]),
                                  't_val': repeat_y_time})  # real data: [-1::t_val]
 
-        wcw.ppp(repeat_y_time)
+        myt.ppp(repeat_y_time)
         continue
 
 
@@ -212,11 +211,11 @@ for i in range(len(config.data.t_start)):
 
 
     print(f"i={i}")
-    wcw.sss(x)
-    wcw.sss(y)
+    myt.sss(x)
+    myt.sss(y)
     alldata[save_to].append({'x': x.reshape(-1,x.shape[-3],b.shape[-2],b.shape[-1]),'y':y.reshape(-1, x.shape[-3],b.shape[-2],b.shape[-1]),
                              't_val':repeat_y_time})#real data: [-1::t_val]
-    wcw.ppp(repeat_y_time)
+    myt.ppp(repeat_y_time)
     # print(rr)
 
 t2=tm.time()
@@ -253,7 +252,7 @@ for key in ['train','test']:
 del alldata
 #del alldata
 
-model = get_model(config,dvc=device)
+model = get_model(config)
 model = model.to(device)
 
 if 'model_use_type' in config.wandb:
@@ -375,6 +374,7 @@ if is_logger:
             to_log["space_savings"] = 1 - (n_params / config.n_params_baseline)
         wandb.log(to_log)
         wandb.watch(model)
+
 
 trainer.train(
     train_loaders=train_loaders,

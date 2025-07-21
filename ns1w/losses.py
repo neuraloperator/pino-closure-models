@@ -15,7 +15,7 @@ from utils import FC2D
 from utils import FC3D
 
 
-import my_tools as wcw
+import my_tools as myt
 
 #dbg: pde residual
 import numpy as np
@@ -691,11 +691,11 @@ class KF_eqn_loss(object):
 
             for t in t_lst:
                 nm = f'Nl_N={w.shape[0]}_t={t}of {nt}_x={nx}'
-                wcw.ppp(t)
+                myt.ppp(t)
 
                 aa = torch.mean(aaa[:,0,t], dim=0, keepdim=False)
                 # aa=torch.log10(aa)
-                wcw.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14, ftsz=24)
+                myt.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14, ftsz=24)
                 name = f'temp_save/nonL_' + nm+plot_nm
                 plt.tight_layout()
                 plt.savefig(name + '.jpg')
@@ -712,7 +712,7 @@ class KF_eqn_loss(object):
 
                 aa = torch.mean(aaa[:, 0,t], dim=0, keepdim=False)
                 # aa=torch.log10(aa)
-                wcw.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14, ftsz=24)
+                myt.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14, ftsz=24)
                 name = f'temp_save/visLap_' + nm+plot_nm
                 plt.tight_layout()
                 plt.savefig(name + '.jpg')
@@ -759,12 +759,12 @@ class KF_eqn_loss(object):
             u=u.detach()
             for t in t_lst:
                 nm=f'output_w={u.shape[0]}_t={t}of {nt}_x={nx}'
-                wcw.ppp(t)
-                wcw.sss(u)
+                myt.ppp(t)
+                myt.sss(u)
                 aa=torch.mean(u[:,t+1],dim=0,keepdim=False)
-                wcw.sss(aa)
+                myt.sss(aa)
                 # aa=torch.log10(aa)
-                wcw.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14,ftsz=24)
+                myt.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14,ftsz=24)
                 name = f'temp_save/out_w_'+nm+plot_nm
                 plt.tight_layout()
                 plt.savefig(name + '.jpg')
@@ -776,7 +776,7 @@ class KF_eqn_loss(object):
 
                 aa=torch.mean(u_t[:,t+1],dim=0,keepdim=False)
                 # aa=torch.log10(aa)
-                wcw.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14,ftsz=24)
+                myt.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14,ftsz=24)
                 name = f'temp_save/D_t'+nm+plot_nm
                 plt.tight_layout()
                 plt.savefig(name + '.jpg')
@@ -794,7 +794,7 @@ class KF_eqn_loss(object):
 
                 aa=torch.mean(residual[:,t],dim=0,keepdim=False)
                 # aa=torch.log10(aa)
-                wcw.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14,ftsz=24)
+                myt.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14,ftsz=24)
                 name = f'temp_save/pde_residual_'+nm+plot_nm
                 plt.tight_layout()
                 plt.savefig(name + '.jpg')
@@ -824,7 +824,7 @@ class KF_eqn_loss(object):
 
                 aa=torch.mean(u[:,0,t],dim=0,keepdim=False)
                 # aa=torch.log10(aa)
-                wcw.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14,ftsz=24)
+                myt.plotheat(x=plot_x, y=plot_y, z=aa, title=nm, sticksize=14,ftsz=24)
                 name = f'temp_save/true'+nm+plot_nm
                 plt.tight_layout()
                 plt.savefig(name + '.jpg')

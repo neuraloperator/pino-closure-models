@@ -8,9 +8,8 @@ import sys
 # base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 # sys.path.insert(0, base_dir)
 
-import neuralop_advance
-sys.modules['neuralop'] = neuralop_advance
-import my_tools as wcw
+import neuralop
+import my_tools as myt
 import neuralop.mpu.comm as comm
 
 from losses import LpLoss
@@ -144,7 +143,7 @@ class Trainer:
             is_logger = (comm.get_world_rank() == 0)
         else:
             is_logger = True 
-        temp=wcw.mm('before train epoch') if check_mem else 0
+        temp=myt.mm('before train epoch') if check_mem else 0
         tt1=tm.time()
         for epoch in range(self.n_epochs):
 
@@ -164,14 +163,14 @@ class Trainer:
 
                 # load everything from the batch onto self.device if
                 # no callback overrides default load to device
-                temp=wcw.mm('in for idx, sample;before train')if check_mem else 0
+                temp=myt.mm('in for idx, sample;before train')if check_mem else 0
                 if self.override_load_to_device:
                     self.callbacks.on_load_to_device(sample=sample)
                 else:
                     for k,v in sample.items():
                         if hasattr(v, 'to'):
                             sample[k] = v.to(self.device)
-                temp=wcw.mm('sample load to gpu')if check_mem else 0
+                temp=myt.mm('sample load to gpu')if check_mem else 0
                 # optimizer.zero_grad(set_to_none=True)
                 if regularizer:####
                     regularizer.reset()
@@ -181,7 +180,7 @@ class Trainer:
                         out = self.model(**sample)
                 else:
                     out = self.model(**sample)###
-                    temp=wcw.mm('back from fno to trainer')if check_mem else 0
+                    temp=myt.mm('back from fno to trainer')if check_mem else 0
 
                 if self.callbacks:
                     self.callbacks.on_before_loss(out=out)
@@ -211,7 +210,7 @@ class Trainer:
 
                 if regularizer: # not this way
                     loss += regularizer.loss
-                temp=wcw.mm('before BP') if check_mem else 0
+                temp=myt.mm('before BP') if check_mem else 0
 
                 loss.backward()
 
@@ -221,7 +220,7 @@ class Trainer:
 
                 loss = lloss
 
-                temp=wcw.mm('after loss.BP;del loss')if check_mem else 0
+                temp=myt.mm('after loss.BP;del loss')if check_mem else 0
 
                 self.model.bp(**sample)
 
@@ -233,7 +232,7 @@ class Trainer:
                     optimizer.step()
                     optimizer.zero_grad(set_to_none=True)  # new
 
-                temp=wcw.mm('after opt')if check_mem else 0
+                temp=myt.mm('after opt')if check_mem else 0
                 train_err += loss.item()
 
                 with torch.no_grad():
@@ -257,7 +256,7 @@ class Trainer:
             train_err /= print_normalize
             avg_loss  /= self.n_epochs
             if check_mem:
-                wcw.mmm(epoch)
+                myt.mmm(epoch)
                 tt2=tm.time()
                 print('TIME COST!!!',tt2-tt1)
                 exit()
@@ -283,7 +282,7 @@ class Trainer:
             if self.callbacks:
                 self.callbacks.on_epoch_end(epoch=epoch, train_err=train_err, avg_loss=avg_loss)
             if check_mem:
-                wcw.mmm(f'test{epoch}')
+                myt.mmm(f'test{epoch}')
     def evaluate(self, loss_dict, data_loader,
                  log_prefix='',losstype='sum',check_mem=False):
         """Evaluates the model on a dictionary of losses
@@ -313,7 +312,7 @@ class Trainer:
         n_samples = 0
 
         temp=print('in test!!!!!!!!!!!!!\n')if check_mem else 0
-        temp=wcw.mm('test begin')if check_mem else 0
+        temp=myt.mm('test begin')if check_mem else 0
 
         with torch.no_grad():
             for idx, sample in enumerate(data_loader[0]):
@@ -333,7 +332,7 @@ class Trainer:
                     for k,v in sample.items():
                         if hasattr(v, 'to'):
                             sample[k] = v.to(self.device)
-                temp=wcw.mm('test: before forward')if check_mem else 0
+                temp=myt.mm('test: before forward')if check_mem else 0
                 out = self.model(**sample,test=1)
 
                 if self.callbacks:

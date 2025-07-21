@@ -3,9 +3,8 @@ from torch.cuda import amp
 from timeit import default_timer
 import pathlib
 import sys
-import neuralop_base
-sys.modules['neuralop'] = neuralop_base
-import my_tools as wcw
+import neuralop
+import my_tools as myt
 import neuralop.mpu.comm as comm
 
 from losses import LpLoss
@@ -228,7 +227,7 @@ class Trainer:
             train_err /= print_normalize
             avg_loss  /= self.n_epochs
             if check_mem:
-                wcw.mmm(epoch)
+                myt.mmm(epoch)
             if epoch % self.log_test_interval == 0: 
 
                 if self.callbacks:
@@ -245,7 +244,7 @@ class Trainer:
             if self.callbacks:
                 self.callbacks.on_epoch_end(epoch=epoch, train_err=train_err, avg_loss=avg_loss)
             if check_mem:
-                wcw.mmm(f'test{epoch}')
+                myt.mmm(f'test{epoch}')
     def evaluate(self, loss_dict, data_loader,
                  log_prefix='',losstype='sum'):
         """Evaluates the model on a dictionary of losses

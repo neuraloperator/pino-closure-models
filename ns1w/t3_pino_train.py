@@ -13,8 +13,7 @@ matplotlib.use('Agg')
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import neuralop_advance
-sys.modules['neuralop'] = neuralop_advance
+import neuralop
 
 import wandb
 
@@ -27,7 +26,7 @@ from neuralop import get_model
 from neuralop.training import setup
 from neuralop.training.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
 from neuralop.utils import get_wandb_api_key, count_model_params
-import my_tools as wcw
+import my_tools as myt
 
 from t3_trainer_pino_3 import Trainer
 from data_dict import *
@@ -37,7 +36,7 @@ from data.kf_data_load_pino import load_data_small
 #basic control
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 counter_file = "counter.txt"
-file_id=wcw.id_filename(counter_file)
+file_id=myt.id_filename(counter_file)
 
 # Read the configuration
 config_name = "default"
@@ -111,7 +110,7 @@ config.verbose = config.verbose and is_logger
 
 
 
-wcw.ppp(is_logger)
+
 
 # Print config to screen
 if config.verbose and is_logger:
@@ -133,7 +132,7 @@ alldata={'train':[],'test':[]}
 
 def gen_data_pad(x,dt,dim=1,dT=None,t0:int=0,t_end:int=None,single=0,rr=None):#x.shape=NTXY ,dim(T)=1
 
-    y=wcw.slicing_split(x,dim=dim,dt=dt,dT=dT,t0=t0,t_end=t_end,single=single) #shape=NKTXY
+    y=myt.slicing_split(x,dim=dim,dt=dt,dT=dT,t0=t0,t_end=t_end,single=single) #shape=NKTXY
     if rr==None:
         if y.shape[2]*config.data.repeat>=config.data.t_step_min:
             rr=config.data.repeat
@@ -202,13 +201,13 @@ for i in range(len(config.data.t_start)):
 
         save_to='train'if (config.data.train_tag[i]==1) else 'test'
 
-        wcw.sss(x)
-        wcw.sss(y)
+        myt.sss(x)
+        myt.sss(y)
 
 
         alldata[save_to].append({'x': x.reshape(-1,x.shape[-3],b.shape[-2],b.shape[-1]),'y':y.reshape(-1, x.shape[-3],b.shape[-2],b.shape[-1]),
                                  't_val':repeat_y_time})#real data: [-1::t_val]
-        wcw.ppp(repeat_y_time)
+        myt.ppp(repeat_y_time)
 
 
     else:
@@ -220,8 +219,8 @@ for i in range(len(config.data.t_start)):
         x=temp0[:,:-t_use_pred]
         y=temp0[:,t_use_pred:]
         del temp0
-        wcw.sss(x)
-        wcw.sss(y)
+        myt.sss(x)
+        myt.sss(y)
         alldata[save_to].append({'x': x.reshape(-1, x.shape[-3], x.shape[-2], x.shape[-1]),
                                  'y': y.reshape(-1, x.shape[-3], x.shape[-2], x.shape[-1]),
                                  't_val':config.data.t_step_min})
@@ -263,7 +262,7 @@ for key in ['train','test']:
     del alldata[key]
 del alldata
 
-model = get_model(config,dvc=device)
+model = get_model(config)
 model = model.to(device)
 #
 cpt=torch.load(model_dict[config.wandb.model_use_type][config.wandb.model_use],map_location=device)
@@ -415,23 +414,25 @@ if is_logger:
         wandb.watch(model)
 file_save_path='model_save/'
 config.epoch_pde=cfg_pde_loss.begin
-trainer.train(
-    train_loaders=train_loaders,
-    test_loaders=test_loaders,
-    optimizer=optimizer,
-    scheduler=scheduler,
-    regularizer=False,
-    training_loss=train_losses,
-    eval_losses=eval_losses,
-    losstype=config.opt.loss_type,
-    K128=cfg_pde_loss.data_batch, #The number of frs data batches together with one batch of input for pde loss.
-    check_mem=config.opt.check_mem,
-    cfg=cfg_pde_loss,
-    grad_acml=config.opt.gradient_accumulation,
-    quick_save=config.opt.quick_save,
-    qck_sv_nm=f'{file_save_path}model_{config_arch.n_modes}_{config_arch.hidden_channels}_{config.data.t_step_min}_{file_id}',
-    early_128=cfg_pde_loss.early,
-)
+
+with torch.autograd.graph.save_on_cpu(pin_memory=True):
+    trainer.train(
+        train_loaders=train_loaders,
+        test_loaders=test_loaders,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        regularizer=False,
+        training_loss=train_losses,
+        eval_losses=eval_losses,
+        losstype=config.opt.loss_type,
+        K128=cfg_pde_loss.data_batch, #The number of frs data batches together with one batch of input for pde loss.
+        check_mem=config.opt.check_mem,
+        cfg=cfg_pde_loss,
+        grad_acml=config.opt.gradient_accumulation,
+        quick_save=config.opt.quick_save,
+        qck_sv_nm=f'{file_save_path}model_{config_arch.n_modes}_{config_arch.hidden_channels}_{config.data.t_step_min}_{file_id}',
+        early_128=cfg_pde_loss.early,
+    )
 
 
 if config.wandb.log and is_logger:

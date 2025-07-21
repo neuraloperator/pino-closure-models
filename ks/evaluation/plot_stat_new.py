@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 
-import My_TOOL as wcw
+import My_TOOL as myt
 import math as mt
 import wandb
 import torch.fft as fft
@@ -181,7 +181,7 @@ def auto_corl_coef(dt_save, start_time=0, ut=None, vt=None, path=None, input_typ
             usubb=usub*usub1
             corl_stat[i].append(torch.mean(torch.mean(usubb,dim=-1)/ubar2,dim=1))
             if i%20==0:
-                wcw.ppp(i)
+                myt.ppp(i)
     for i in range(resolution):
         corl_stat[i] = torch.mean(torch.cat(corl_stat[i], dim=0), dim=0).cpu().item()
     print('acc:done')
@@ -301,7 +301,7 @@ def save_stat_info(dt_save,filename, tag,start_time=0, ut=None, path=None, use_l
     else:
         path_name=filename+'.pt'
     torch.save(out,path_name)
-    wcw.mmm('save_stat')
+    myt.mmm('save_stat')
     return
 
 def plot_all_stat(plotlist,filename,taglist=None,k_plot=55,energy_k=0,acc_k=0,vds_k=64,dns_tag='FRS'):
@@ -347,7 +347,7 @@ def plot_all_stat(plotlist,filename,taglist=None,k_plot=55,energy_k=0,acc_k=0,vd
             else:
                 yplot.append(plotlist[i]['eng'][1:152])
 
-    wcw.plotline(yplot, xname='k-th(Fourier mode)', yname='log Energy', yscale='log', have_x=False,
+    myt.plotline(yplot, xname='k-th(Fourier mode)', yname='log Energy', yscale='log', have_x=False,
                  title='Energy Spectual', overlap=1, label=taglist,  linewidth=linwid,titlesz=titlesz,legendsz=legendsz,stcksize=stcksize)
     name = '../fig_save/energy_'
     plt.savefig(name + filename + '.jpg')
@@ -367,7 +367,7 @@ def plot_all_stat(plotlist,filename,taglist=None,k_plot=55,energy_k=0,acc_k=0,vd
             else:
                 yplot.append(plotlist[i]['acc'][1:122].abs())
 
-    wcw.plotline(yplot, xname='k-th(Fourier mode)', yname='log |acc|', yscale='log', have_x=False, title='Auto Correlation Coefficient',
+    myt.plotline(yplot, xname='k-th(Fourier mode)', yname='log |acc|', yscale='log', have_x=False, title='Auto Correlation Coefficient',
                  overlap=1, label=taglist,  linewidth=linwid,titlesz=titlesz,legendsz=legendsz,stcksize=stcksize)
     name = '../fig_save/acc_'
     plt.savefig(name + filename + '.jpg')
@@ -380,12 +380,12 @@ def plot_all_stat(plotlist,filename,taglist=None,k_plot=55,energy_k=0,acc_k=0,vd
     xx=np.linspace(0,6*mt.pi*50/128,51,endpoint=True)
     yplot.append(xx)
 
-    wcw.plotline(yplot, xname='h', yname='Correlation', yscale='linear', have_x=True,
+    myt.plotline(yplot, xname='h', yname='Correlation', yscale='linear', have_x=True,
                  title='Spatial Correlation', overlap=1, label=taglist,  linewidth=linwid,titlesz=titlesz,legendsz=legendsz,stcksize=stcksize)
     name = '../fig_save/cor_'
     plt.savefig(name + filename + '.jpg')
     plt.clf()
-    wcw.mmm(381)
+    myt.mmm(381)
 
     def f(n):
         x=base_gt['u'][n]
@@ -591,14 +591,14 @@ def plot_cvg_eng(wavenum,dt_save,file_name,start_time=0,ut=None,vt=None, path=No
     timeL = vsub.shape[-2]
     tt = torch.arange(start=1, end=timeL + 0.5, step=1).to(device)
     yplot=torch.mean(y_stat/(tt.view(-1,1)),dim=0)
-    # wcw.sss(yplot)
+    # myt.sss(yplot)
     tt=(tt.unsqueeze(0)).repeat(len(wn),1)
-    # wcw.sss(tt)
+    # myt.sss(tt)
 
     yplot=torch.cat([yplot.permute([1,0]),dt_save*(start_plot+tt)],dim=0)
 
 
-    wcw.plotline(yplot,xname='T',yname='Time average of Energy Spectual',title='Convergence of Statistics along Time',
+    myt.plotline(yplot,xname='T',yname='Time average of Energy Spectual',title='Convergence of Statistics along Time',
                  label=wn)
     name = '../fig_save/energy_cvg_'
     plt.savefig(name + file_name + 'jpg')
@@ -635,7 +635,7 @@ def plot_eng_spec(file_name,path_list,label_list,exp_label='experiment',exp_plot
 
 
 
-    wcw.plotline(yplot,xname='k-th(Fourier mode)',yname='log Energy',yscale=yscale,have_x=False,title='Energy Spectual',overlap=1,label=label_list,linewidth=linwid)
+    myt.plotline(yplot,xname='k-th(Fourier mode)',yname='log Energy',yscale=yscale,have_x=False,title='Energy Spectual',overlap=1,label=label_list,linewidth=linwid)
     name = '../fig_save/energy_result_'
     plt.savefig(name + file_name + 'jpg')
     plt.clf()
@@ -696,12 +696,12 @@ def plot_cvg_cor(cor_num,dt_save,file_name,start_time=0,ut=None,vt=None, path=No
         usub1 = usub[num_grid]
         usubb = usub * usub1
         a=torch.mean(torch.cumsum(torch.mean(usubb, dim=0), dim=-1) / tt.view(1,-1), dim=0)
-        wcw.sss(a)
+        myt.sss(a)
         corl_stat=torch.cat([a.view(1,-1),corl_stat],dim=0)
-        wcw.sss(corl_stat)
+        myt.sss(corl_stat)
     plot_num.reverse()
     wn=[f'{i}dx' for i in plot_num]
-    wcw.plotline(corl_stat,xname='T',yname='Time average of Space Correlation',title='Convergence of Statistics along Time',
+    myt.plotline(corl_stat,xname='T',yname='Time average of Space Correlation',title='Convergence of Statistics along Time',
                  label=wn)
     name = '../fig_save/correlation_cvg_'
     plt.savefig(name + file_name + 'jpg')
@@ -732,7 +732,7 @@ def plot_space_cor(file_name,path_list,label_list,exp_label='experiment',exp_plo
         yan=1
         yplot.append(exp_plot)
         label_list.append(exp_label)
-    wcw.plotline(yplot,xname='x',yname='Spatial correlation',yscale=yscale,have_x=False,title='Spatial Correlation',overlap=1,label=label_list)
+    myt.plotline(yplot,xname='x',yname='Spatial correlation',yscale=yscale,have_x=False,title='Spatial Correlation',overlap=1,label=label_list)
     name = '../fig_save/correlation_result_'
     plt.savefig(name + file_name + 'jpg')
     plt.clf()
@@ -818,7 +818,7 @@ def plot_v_density(datalist:dict,filename,k:list[int],fpath='../fig_save/'):
 
         b = fft.fft(reduce_dim(dct),dim=-1,norm='forward')
         print(dct['name'])
-        wcw.sss(b)
+        myt.sss(b)
         r_list.append(b.abs().cpu())
         theta_list.append(b.angle().cpu())
     for kk in k:

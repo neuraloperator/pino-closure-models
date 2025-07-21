@@ -6,8 +6,7 @@ matplotlib.use('Agg')
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-import neuralop_base
-sys.modules['neuralop'] = neuralop_base
+import neuralop
 import wandb
 
 import torch.fft as fft
@@ -22,7 +21,7 @@ from neuralop import get_model
 from neuralop.training import setup
 from neuralop.training.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
 from neuralop.utils import get_wandb_api_key, count_model_params
-import my_tools as wcw
+import my_tools as myt
 
 from trainer_pino_2 import Trainer
 from data_dict import *
@@ -32,7 +31,7 @@ from data.ks_data_load_pino import load_data_small
 #basic control
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 counter_file = "counter.txt"
-file_id=wcw.id_filename(counter_file)
+file_id=myt.id_filename(counter_file)
 
 
 
@@ -111,7 +110,7 @@ config.verbose = config.verbose and is_logger
 
 
 
-wcw.ppp(is_logger)
+myt.ppp(is_logger)
 
 # Print config to screen
 if config.verbose and is_logger:
@@ -131,7 +130,7 @@ alldata={'train':[],'test':[]}
 
 def gen_data_pad(x,dt,dim=1,dT=None,t0:int=0,t_end:int=None,single=0,rr=None):#NTX ,dim(T)=1
 
-    y=wcw.slicing_split(x,dim=dim,dt=dt,dT=dT,t0=t0,t_end=t_end,single=single) #NKTX
+    y=myt.slicing_split(x,dim=dim,dt=dt,dT=dT,t0=t0,t_end=t_end,single=single) #NKTX
     if rr==None:
         if y.shape[2]*config.data.repeat>=config.data.t_step_min:
             rr=config.data.repeat
@@ -180,12 +179,12 @@ for i in range(len(config.data.t_start)):
 
     save_to='train'if (config.data.train_tag[i]==1) else 'test'
 
-    wcw.sss(x)
-    wcw.sss(y)
+    myt.sss(x)
+    myt.sss(y)
 
     alldata[save_to].append({'x': x.reshape(-1,x.shape[-2],b.shape[-1]),'y':y.reshape(-1, y.shape[-2],b.shape[-1]),
                              't_val':repeat_y_time})#real data: [-1::t_val]
-    wcw.ppp(repeat_y_time)
+    myt.ppp(repeat_y_time)
     # print(rr)
 
 config.data.n_train=config.data.num_data[:3]
@@ -201,7 +200,7 @@ print(f"time to load data:{t2-t1}")
 for key in [128,1024]:
     del sourcedata[key]
 del sourcedata
-wcw.mmm(206)
+myt.mmm(206)
 
 # Loading the dataset
 

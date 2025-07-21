@@ -4,9 +4,8 @@ from timeit import default_timer
 import time as tm
 import pathlib
 import sys
-import neuralop_base
-sys.modules['neuralop'] = neuralop_base
-import my_tools as wcw
+import neuralop
+import my_tools as myt
 import neuralop.mpu.comm as comm
 
 from losses import LpLoss
@@ -231,7 +230,7 @@ class Trainer:
                     loss += regularizer.loss
                 if check_mem:
                     if idx==0:
-                        wcw.mmm(f"first part loss,{epoch}")
+                        myt.mmm(f"first part loss,{epoch}")
 
 
 
@@ -311,7 +310,7 @@ class Trainer:
             train_err /= print_normalize
             avg_loss  /= self.n_epochs
             if check_mem:
-                wcw.mmm(f'epoch={epoch}')
+                myt.mmm(f'epoch={epoch}')
             if epoch>0 and epoch<pde_inc_stop and epoch% pde_inc_time==0:
                 lam0/=pde_rate_inc
 
@@ -326,7 +325,7 @@ class Trainer:
                 scheduler.gamma=cfg['gm_end']
                 scheduler.step_size=cfg['step_end']
             if epoch%100==0:
-                wcw.mmm("per100iter")
+                myt.mmm("per100iter")
             if epoch % self.log_test_interval == 0:
 
                 if self.callbacks:
@@ -343,7 +342,7 @@ class Trainer:
             if self.callbacks:
                 self.callbacks.on_epoch_end(epoch=epoch, train_err=train_err, avg_loss=avg_loss)
             if check_mem:
-                wcw.mmm(f'test{epoch}')
+                myt.mmm(f'test{epoch}')
 
     def evaluate(self, loss_dict, data_loader,
                  log_prefix='',losstype='sum'):

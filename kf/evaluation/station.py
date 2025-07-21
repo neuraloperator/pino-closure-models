@@ -6,9 +6,8 @@ matplotlib.use('Agg')
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-import neuralop_base
-sys.modules['neuralop'] = neuralop_base
-import my_tools as wcw
+import neuralop
+import my_tools as myt
 
 from kf.data_dict import *
 import torch.fft as fft
@@ -23,7 +22,7 @@ import kf_plot_stat_new as stat
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 counter_file = "counter.txt"
-file_id=wcw.id_filename(counter_file)
+file_id=myt.id_filename(counter_file)
 
 
 
@@ -75,7 +74,7 @@ traj_slice = slice(None, n_use)
 
 x=sourcedata[res][traj_slice].unsqueeze(dim=1)#data:n,x,y
 x = x.unsqueeze(dim=1)  # N*1*1*X*Y
-# wcw.sss(x)
+# myt.sss(x)
 
 
 # """rfft and change to 1024 here"""
@@ -106,7 +105,7 @@ model = get_model(config)
 model = model.to(device)
 model_link=model_dict[config.wandb.model_type][config.wandb.model_use]
 cpt=torch.load(model_link,map_location=device)
-model_name=wcw.get_file_name(model_link)
+model_name=myt.get_file_name(model_link)
 model.load_state_dict(cpt["model"])
 model.eval()
 del cpt
@@ -120,7 +119,7 @@ epochs=mt.ceil(config.plot.t_run/config.data.t_predict)
 # print(config.plot.t_run)
 # print(config.data.t_predict)
 
-wcw.ppp(epochs)
+myt.ppp(epochs)
 
 t1=0
 t2=0
@@ -164,8 +163,8 @@ for ii in range(gen_cycle):
 usave=torch.cat(usave,dim=0)#n t x,y
 
 
-wcw.sss(usave)
-wcw.mmm()
+myt.sss(usave)
+myt.mmm()
 
 res=16
 

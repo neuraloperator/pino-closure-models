@@ -4,9 +4,8 @@ from timeit import default_timer
 import time as tm
 import pathlib
 import sys
-import neuralop_advance
-sys.modules['neuralop'] = neuralop_advance
-import my_tools as wcw
+import neuralop
+import my_tools as myt
 import neuralop.mpu.comm as comm
 from losses import LpLoss
 from neuralop.training.callbacks import PipelineCallback
@@ -242,7 +241,7 @@ class Trainer:
                     del sample['x']
                     if check_mem:
                         if idx==0:
-                            wcw.mmm(f"first part loss,{epoch}")
+                            myt.mmm(f"first part loss,{epoch}")
                             tmtt2=tm.time()
                             print(f'pde:{tmtt2-tmtt1}')
 
@@ -332,7 +331,7 @@ class Trainer:
             train_err /= print_normalize
             avg_loss  /= self.n_epochs
             if check_mem:
-                wcw.mmm(f'epoch={epoch}')
+                myt.mmm(f'epoch={epoch}')
                 tmtt2=tm.time()
                 print(f'TIME COST!!!: {tmtt2-tmtt1}')
 
@@ -370,7 +369,7 @@ class Trainer:
             if self.callbacks:
                 self.callbacks.on_epoch_end(epoch=epoch, train_err=train_err, avg_loss=avg_loss)
             if check_mem:
-                wcw.mmm(f'test{epoch}')
+                myt.mmm(f'test{epoch}')
 
     def evaluate(self, loss_dict, data_loader,
                  log_prefix='',losstype='sum',check_mem=False):
@@ -401,7 +400,7 @@ class Trainer:
         n_samples = 0
 
         temp=print('in test!!!!!!!!!!!!!\n')if check_mem else 0
-        temp=wcw.mm('test begin')if check_mem else 0
+        temp=myt.mm('test begin')if check_mem else 0
 
         with torch.no_grad():
             for idx, sample in enumerate(data_loader[0]):
@@ -421,7 +420,7 @@ class Trainer:
                     for k,v in sample.items():
                         if hasattr(v, 'to'):
                             sample[k] = v.to(self.device)
-                # temp=wcw.mm('test: before forward')if check_mem else 0
+                # temp=myt.mm('test: before forward')if check_mem else 0
                 out = self.model(**sample,test=1)
 
                 if self.callbacks:

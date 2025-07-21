@@ -6,9 +6,8 @@ matplotlib.use('Agg')
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-import neuralop_base
-sys.modules['neuralop'] = neuralop_base
-import my_tools as wcw
+import neuralop
+import my_tools as myt
 # import wandb
 from ks.data_dict import *
 import torch.fft as fft
@@ -24,7 +23,7 @@ import plot_stat_new as stat
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 counter_file = "counter.txt"
-file_id=wcw.id_filename(counter_file)
+file_id=myt.id_filename(counter_file)
 
 
 
@@ -76,7 +75,7 @@ traj_slice = slice(None, n_use)
 x=sourcedata[128][traj_slice].unsqueeze(dim=1)#n,x
 
 x = x.unsqueeze(dim=1)  # N*1*1*X
-wcw.sss(x)
+myt.sss(x)
 
 
 for key in [128]:
@@ -104,7 +103,7 @@ model = get_model(config)
 model = model.to(device)
 model_link=model_dict[config.wandb.model_type][config.wandb.model_use]
 cpt=torch.load(model_link,map_location=device)
-model_name=wcw.get_file_name(model_link)
+model_name=myt.get_file_name(model_link)
 model.load_state_dict(cpt["model"])
 model.eval()
 del cpt
@@ -158,7 +157,7 @@ usave=torch.cat(usave,dim=0)#n t x
 
 
 
-modelname=wcw.get_file_name(model_link)
+modelname=myt.get_file_name(model_link)
 res=1024 if cfg_plt.use_hi else 128
 
 start=cfg_plt.starting_plot

@@ -4,8 +4,7 @@ from timeit import default_timer
 import pathlib
 
 import sys
-import neuralop_base
-sys.modules['neuralop'] = neuralop_base
+import neuralop
 import neuralop.mpu.comm as comm
 
 from losses import LpLoss

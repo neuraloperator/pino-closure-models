@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 
-import My_TOOL as wcw
+import My_TOOL as myt
 
 
 from kf.data_dict import *
@@ -42,5 +42,5 @@ torch.save({
 
 rr=torch.load('../data/kf_stat_uv_emp_range.pt')
 
-wcw.check_dict(rr)
-wcw.ppp(rr['u'])
+myt.check_dict(rr)
+myt.ppp(rr['u'])

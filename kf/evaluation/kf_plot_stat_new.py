@@ -10,7 +10,7 @@ import numpy.random as random
 from scipy.stats import gaussian_kde
 import torch.fft as fft
 
-import My_TOOL as wcw
+import My_TOOL as myt
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -161,9 +161,9 @@ def v_density(dt_save,start_time=0,ut=None,path=None,input_type='no',bin=50,gamm
     res=ut.shape[-1]
     start_plot=int(start_time/dt_save)
     out=[[0 for i in range(16)]for j in range(16)]
-    wcw.sss(ut[:,start_plot:])
+    myt.sss(ut[:,start_plot:])
     rho=(fft.fft2(ut[:,start_plot:],norm='forward')).abs().cpu()
-    wcw.sss(rho)
+    myt.sss(rho)
     for k in range(8):
         for kk in range(8):
             left =0
@@ -179,7 +179,7 @@ def v_density(dt_save,start_time=0,ut=None,path=None,input_type='no',bin=50,gamm
         if k%1==0:
             print(f'v-k={k},{kk}:done')
             if k==0:
-                wcw.mmm('k=0')
+                myt.mmm('k=0')
     print('v:done!')
     return out
 """Distribution of dissipation__________________________________________________________-"""
@@ -263,7 +263,7 @@ def save_stat_info(datadct,filename, tag,re=100,gamma=1.1,data_sp=2000000,traj_b
     out['res']=w.shape[-1]
     out['eng']=spectral_energy(w)
     out['w']=w_denity(dt_save=out['dtsave'],ut=w)
-    # wcw.sss(w)
+    # myt.sss(w)
     out['v']=v_density(dt_save=out['dtsave'],ut=w)
     out['dsp']=dspt_density(w,re=re)
     out['tke']=tke_density(w)
@@ -279,7 +279,7 @@ def save_stat_info(datadct,filename, tag,re=100,gamma=1.1,data_sp=2000000,traj_b
     else:
         path_name=filename+'.pt'
     torch.save(out,path_name)
-    wcw.mmm('save_stat')
+    myt.mmm('save_stat')
     return
 
 def plot_all_stat(plotlist,filename,taglist=None,k_plot=[[5,6],[2,2]],energy_k=12,vds_k=[8,8],dns_tag='FRS'):
@@ -329,7 +329,7 @@ def plot_all_stat(plotlist,filename,taglist=None,k_plot=[[5,6],[2,2]],energy_k=1
             else:
                 yplot.append(plotlist[i]['eng'][1:152])
 
-    wcw.plotline(yplot, xname='k(sum of index)', yname='log Energy', yscale='log', have_x=False,
+    myt.plotline(yplot, xname='k(sum of index)', yname='log Energy', yscale='log', have_x=False,
                  title='Energy Spectual', overlap=1, label=taglist, linewidth=linwid,titlesz=titlesz,legendsz=legendsz,stcksize=stcksize)
     name = '../fig_save/energy_'  # each method file has its own temp_save folder
     plt.savefig(name + filename + '.jpg')
@@ -400,7 +400,7 @@ def plot_all_stat(plotlist,filename,taglist=None,k_plot=[[5,6],[2,2]],energy_k=1
 
             ss='log'
         cbar=[0,1] if lin else [-1.8,0]
-        wcw.plotheat(x=plot_x,y=plot_y,z=z,barname='TV dist',title=ss+f'TV error: {tag}',vmin=cbar[0],vmax=cbar[1])
+        myt.plotheat(x=plot_x,y=plot_y,z=z,barname='TV dist',title=ss+f'TV error: {tag}',vmin=cbar[0],vmax=cbar[1])
         # plt.plot(np.array(lst), label=tag + '_kde', linewidth=linwid)
 
 
@@ -529,10 +529,10 @@ def save_all_err(statdct:dict,filename,energy_k=12,vds_k=[7,7],default_flnm=1):
 
     'tv of dsp'
     sm=np.sum(base_gt['dsp'][1])*(statdct['dsp'][0][2]-statdct['dsp'][0][1])
-    wcw.ppp(sm)
+    myt.ppp(sm)
     tv_dsp=np.sum(np.abs(statdct['dsp'][1]-base_gt['dsp'][1])*(statdct['dsp'][0][2]-statdct['dsp'][0][1]))/2
     save_lst.append(tv_dsp)
-    wcw.ppp(tv_dsp)
+    myt.ppp(tv_dsp)
 
 
 

@@ -7,9 +7,8 @@ matplotlib.use('Agg')
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
-import neuralop_advance
-sys.modules['neuralop'] = neuralop_advance
-import my_tools as wcw
+import neuralop
+import my_tools as myt
 
 from ns1w.data_dict import *
 import torch.fft as fft
@@ -24,7 +23,7 @@ import kf_plot_stat_new as stat
 
 
 counter_file = "counter.txt"
-file_id=wcw.id_filename(counter_file)
+file_id=myt.id_filename(counter_file)
 
 
 
@@ -123,7 +122,7 @@ traj_slice = slice(None, n_use)
 x=sourcedata[res][traj_slice].unsqueeze(dim=1)#data:n,x,y
 
 x = x.unsqueeze(dim=1)  # N*1*1*X*Y
-# wcw.sss(x)
+# myt.sss(x)
 
 
 # """rfft and change to 1024 here"""
@@ -154,7 +153,7 @@ model = get_model(config)
 model = model.to(device)
 model_link=model_dict[config.wandb.model_type][config.wandb.model_use]
 cpt=torch.load(model_link,map_location=device)
-model_name=wcw.get_file_name(model_link)
+model_name=myt.get_file_name(model_link)
 model.load_state_dict(cpt["model"])
 model.eval()
 del cpt
@@ -169,7 +168,7 @@ ep_start_sv=mt.ceil(cfg_plt.t_start_save/config.data.t_predict)
 # print(config.plot.t_run)
 # print(config.data.t_predict)
 # print(ep_start_sv)
-wcw.ppp(epochs)
+myt.ppp(epochs)
 
 t1=0
 t2=0
@@ -215,13 +214,13 @@ tt2=tm.time()
 for ii in range(gen_cycle):
     usave[ii]=torch.cat(usave[ii],dim=-3)#btz,t,x,y
 usave=torch.cat(usave,dim=0)#n t x,y
-wcw.sss(usave)
+myt.sss(usave)
 
 if config.wandb.log and is_logger:
     wandb.finish()
 
-wcw.sss(usave)
-wcw.mmm()
+myt.sss(usave)
+myt.mmm()
 res=cfg_plt.res
 
 tagsv=f'fno{config.wandb.model_type}_{config.wandb.model_use}'

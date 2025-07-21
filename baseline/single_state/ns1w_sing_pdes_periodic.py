@@ -127,7 +127,7 @@ class NavierStokes2d(object):
     def nonlinear_term(self, w_h, f_h=None,clos=None):
         #Physical space vorticity
         w = fft.irfft2(w_h, s=(self.s1, self.s2))
-        self.closure_tau(w)
+
 
 
 
