@@ -12,6 +12,7 @@ plot/
 main/wandb/
 neuralop_base0/
 neuralop_advance0/
+enable_offload.py
 
 
 
