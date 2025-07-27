@@ -264,6 +264,22 @@ del alldata
 
 model = get_model(config)
 model = model.to(device)
+
+
+#enable cpu_offloading to reduce peak CUDA memory
+from functools import wraps
+
+def wrap_forward_with_offload(forward_fn):
+    @wraps(forward_fn)
+    def wrapped_forward(*args, **kwargs):
+        with torch.autograd.graph.save_on_cpu(pin_memory=True):
+            return forward_fn(*args, **kwargs)
+    return wrapped_forward
+
+model.forward = wrap_forward_with_offload(model.forward)
+
+
+
 #
 cpt=torch.load(model_dict[config.wandb.model_use_type][config.wandb.model_use],map_location=device)
 model.load_state_dict(cpt["model"])
@@ -415,24 +431,24 @@ if is_logger:
 file_save_path='model_save/'
 config.epoch_pde=cfg_pde_loss.begin
 
-with torch.autograd.graph.save_on_cpu(pin_memory=True):
-    trainer.train(
-        train_loaders=train_loaders,
-        test_loaders=test_loaders,
-        optimizer=optimizer,
-        scheduler=scheduler,
-        regularizer=False,
-        training_loss=train_losses,
-        eval_losses=eval_losses,
-        losstype=config.opt.loss_type,
-        K128=cfg_pde_loss.data_batch, #The number of frs data batches together with one batch of input for pde loss.
-        check_mem=config.opt.check_mem,
-        cfg=cfg_pde_loss,
-        grad_acml=config.opt.gradient_accumulation,
-        quick_save=config.opt.quick_save,
-        qck_sv_nm=f'{file_save_path}model_{config_arch.n_modes}_{config_arch.hidden_channels}_{config.data.t_step_min}_{file_id}',
-        early_128=cfg_pde_loss.early,
-    )
+
+trainer.train(
+    train_loaders=train_loaders,
+    test_loaders=test_loaders,
+    optimizer=optimizer,
+    scheduler=scheduler,
+    regularizer=False,
+    training_loss=train_losses,
+    eval_losses=eval_losses,
+    losstype=config.opt.loss_type,
+    K128=cfg_pde_loss.data_batch, #The number of frs data batches together with one batch of input for pde loss.
+    check_mem=config.opt.check_mem,
+    cfg=cfg_pde_loss,
+    grad_acml=config.opt.gradient_accumulation,
+    quick_save=config.opt.quick_save,
+    qck_sv_nm=f'{file_save_path}model_{config_arch.n_modes}_{config_arch.hidden_channels}_{config.data.t_step_min}_{file_id}',
+    early_128=cfg_pde_loss.early,
+)
 
 
 if config.wandb.log and is_logger:

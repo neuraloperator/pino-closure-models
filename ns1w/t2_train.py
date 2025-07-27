@@ -239,6 +239,24 @@ del alldata
 
 model = get_model(config)
 model = model.to(device)
+
+
+
+#enable cpu_offloading to reduce peak CUDA memory
+from functools import wraps
+
+def wrap_forward_with_offload(forward_fn):
+    @wraps(forward_fn)
+    def wrapped_forward(*args, **kwargs):
+        with torch.autograd.graph.save_on_cpu(pin_memory=True):
+            return forward_fn(*args, **kwargs)
+    return wrapped_forward
+
+model.forward = wrap_forward_with_offload(model.forward)
+
+
+
+
 if 'model_use_type' in config.wandb:
     cpt = torch.load(model_dict[config.wandb.model_use_type][config.wandb.model_use], map_location=device)
     model.load_state_dict(cpt["model"])
@@ -372,24 +390,24 @@ if is_logger:
             to_log["space_savings"] = 1 - (n_params / config.n_params_baseline)
         wandb.log(to_log)
         wandb.watch(model)
-with torch.autograd.graph.save_on_cpu(pin_memory=True):
-    trainer.train(
-        train_loaders=train_loaders,
-        test_loaders=test_loaders,
-        optimizer=optimizer,
-        scheduler=scheduler,
-        regularizer=False,
-        training_loss=train_losses,
-        eval_losses=eval_losses,
-        losstype=config.opt.loss_type,
-        K128=config.data.pino2_batch_num, #The number of cgs data batches together with one frs dara batch.
-        lam128=config.data.pino2_batch_lambda, # Balancing the weight between frs data loss and cgs data loss.
-        check_mem=config.opt.check_mem,
-        lambda_scaling=config.data.pino2_btz_lam, #dict[scale, gamma, end_scale]
-        grad_acml=config.opt.gradient_accumulation,
-        quick_save=config.opt.quick_save,
-        qck_sv_nm=f'model_save/model_dns_{file_id}'
-    )
+
+trainer.train(
+    train_loaders=train_loaders,
+    test_loaders=test_loaders,
+    optimizer=optimizer,
+    scheduler=scheduler,
+    regularizer=False,
+    training_loss=train_losses,
+    eval_losses=eval_losses,
+    losstype=config.opt.loss_type,
+    K128=config.data.pino2_batch_num, #The number of cgs data batches together with one frs dara batch.
+    lam128=config.data.pino2_batch_lambda, # Balancing the weight between frs data loss and cgs data loss.
+    check_mem=config.opt.check_mem,
+    lambda_scaling=config.data.pino2_btz_lam, #dict[scale, gamma, end_scale]
+    grad_acml=config.opt.gradient_accumulation,
+    quick_save=config.opt.quick_save,
+    qck_sv_nm=f'model_save/model_dns_{file_id}'
+)
 
 
 if config.wandb.log and is_logger:
