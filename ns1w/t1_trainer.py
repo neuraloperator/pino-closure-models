@@ -222,7 +222,7 @@ class Trainer:
 
                 temp=myt.mm('after loss.BP;del loss')if check_mem else 0
 
-                self.model.bp(**sample)
+                
 
                 if grad_acml:
                     if (idx+1)%grad_acml==0 or idx+1==len(train_loader):

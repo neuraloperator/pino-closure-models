@@ -219,7 +219,7 @@ class Trainer:
                 lloss = loss.detach().clone()
                 del loss
                 loss=lloss
-                self.model.bp(**sample)
+
                 del sample['x']
                 if check_mem:
                     if idx==0:
@@ -273,7 +273,7 @@ class Trainer:
                         llossq = lossq.detach().clone()
                         del lossq
                         lossq=llossq
-                        self.model.bp(**sample)
+
                         del sample['x']
                     use_loader=use_loader_1024
 
