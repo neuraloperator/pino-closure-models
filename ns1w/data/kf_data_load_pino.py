@@ -1,10 +1,10 @@
 from pathlib import Path
 import torch
 
-import neuralop_advance
+# import neuralop_advance
 import sys
 
-sys.modules['neuralop'] = neuralop_advance
+# sys.modules['neuralop'] = neuralop_advance
 
 
 from neuralop.utils import UnitGaussianNormalizer

@@ -1,7 +1,7 @@
 import torch
 import sys
-import neuralop_base
-sys.modules['neuralop'] = neuralop_base
+# import neuralop_base
+# sys.modules['neuralop'] = neuralop_base
 from neuralop.utils import UnitGaussianNormalizer
 from neuralop.datasets.tensor_dataset import GeneralTensorDataset
 from .transforms import PositionalEmbedding
