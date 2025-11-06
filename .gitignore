@@ -23,11 +23,13 @@ et --hard 2fa2eb8
 *.docx
 *.pyc
 *.m
-# *.mat
+*.DS_Store
+*.mat
 *.npy
 *.png
 *.jpg
-# *.pt
+*.pt
+*tar.gz
 kf/model_save/*.pt
 *.zip
 *.xlsx
