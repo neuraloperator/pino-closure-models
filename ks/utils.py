@@ -142,12 +142,7 @@ class FCGram(nn.Module):
     def load_matrices(self):
         filepath = '/global/homes/y/ypincha/pino-closure-models/ks/fcgram_matrices/FCGram_data_d5_c25.npz'
         
-        # if not filepath.exists():
-        #     raise FileNotFoundError(
-        #         f"FCGram matrices not found at {filepath}. \n"
-        #         f"Please ensure the .npz file exists with d={self.d}, C={self.C}."
-        #     )
-        
+
         npz_data = np.load(str(filepath))
         
         self.register_buffer('ArQr', torch.from_numpy(npz_data['ArQr']))
