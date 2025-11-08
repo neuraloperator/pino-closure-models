@@ -35,6 +35,10 @@ kf/model_save/*.pt
 *.xlsx
 *.pdf
 *.pptx
+*.npz
+*.err
+*.out
+*.sbatch
 
 #root path
 /te*.py

@@ -8,7 +8,7 @@ import neuralop
 import neuralop.mpu.comm as comm
 
 from losses import LpLoss
-from neuralop.training.callbacks import PipelineCallback
+# from neuralop.training.callbacks import PipelineCallback
 
 
 from itertools import cycle
@@ -46,7 +46,7 @@ class Trainer:
 
         if callbacks:
             assert type(callbacks) == list, "Callbacks must be a list of Callback objects"
-            self.callbacks = PipelineCallback(callbacks=callbacks)
+            # self.callbacks = PipelineCallback(callbacks=callbacks)
             self.override_load_to_device = (self.callbacks.device_load_callback_idx is not None)
             self.overrides_loss = self.callbacks.overrides_loss
         else:

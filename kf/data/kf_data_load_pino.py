@@ -1,13 +1,13 @@
 from pathlib import Path
 import torch
 
-# import neuralop_base
+import neuralop
 import sys
-# sys.modules['neuralop'] = neuralop_base
+sys.modules['neuralop'] = neuralop
 
 
-from neuralop.utils import UnitGaussianNormalizer
-from neuralop.datasets.tensor_dataset import TensorDataset
+from neuralop.data.transforms.normalizers import UnitGaussianNormalizer
+from neuralop.data.datasets.tensor_dataset import TensorDataset
 from torch.utils.data.sampler import SubsetRandomSampler
 
 from .transforms import PositionalEmbedding

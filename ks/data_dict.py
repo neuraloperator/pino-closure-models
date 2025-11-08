@@ -1,58 +1,58 @@
-data_dict={}
-#Part1: dataset
-
-'''
-Name:
-[1]equation:  ks/kf/ns
-[2]resolution(number or adj=hi/low); train or test
-[3]ut or vt
-[4]link or dtsave
-'''
-
-rel_path='data/'
-# rel_path=''
-a={
-        'ut':{'link':rel_path+"T=100,niu=0.01,N=128,dt=0.01,6pi,dtsave=0.1,sample=1600.pt",'dtsave':0.1,"N":128} #dtsave: save snapshots for all t=k*dtsave; N: spatial resolution
-    }
-
-b={
-    'ut':{'link':rel_path+"T=50,niu=0.01,N=1024,dt=0.001,6pi,dtsave=0.025,sample=4.pt",'dtsave':0.025,'N':1024},
-}
-ks_dict={
-    1024:b,'hi':b,128:a,'low':a,
-}
-
-
-rel_path='data/'
-ks_dict['plot']={
-    128:rel_path+"T=100,niu=0.01,N=128,dt=0.01,6pi,dtsave=0.1,sample=1600.pt",
-    1024:{
-        400:rel_path+"T=100,niu=0.01,N=1024,dt=0.001,6pi,dtsave=0.1,sample=400(69)._test_ut.pt", # ground truth: 400 traj
-    },
-    'range':rel_path+'ks_stat_uv_emp_range.pt'
-}
-
-data_dict['ks']=ks_dict
-
 import math as mt
-'''
-###pde information'''
-pde_info={}
-pde_ks={
-    'domain':[[0,6*mt.pi]],
-    'pde_dim':1,
-    'pde_dim_pino':2,
-    'function_dim':1,
-    'L':[6*mt.pi]
+
+data_base = '/pscratch/sd/y/ypincha/ks_ac/'  
+model_base = '/pscratch/sd/y/ypincha/pino-closure-models/model_save/'
+
+data_dict = {}
+
+a = {
+    'ut': {
+        'link': data_base + "T=100,niu=0.01,N=128,dt=0.01,6pi,dtsave=0.06,sample=1600_ut.pt",
+        'dtsave': 0.06,
+        'N': 128
+    }
 }
 
-pde_info['ks']=pde_ks
+b = {
+    'ut': {
+        'link': data_base + "T=100,niu=0.01,N=1024,dt=0.001,6pi,dtsave=0.1,sample=200(68)._test_ut.pt",
+        'dtsave': 0.1,
+        'N': 1024
+    }
+}
 
-'''Model list'''
-rel_path='model_save/'
-model128={200:rel_path+'model_cgs.pt',}
-model1024={200:rel_path+'model_frs.pt'}
-model_pde={
-           '200_15k':rel_path+'model_pde.pt'
-           }
-model_dict={128:model128,1024:model1024,'pde':model_pde}
+ks_dict = {
+    1024: b,
+    'hi': b,
+    128: a,
+    'low': a,
+}
+
+ks_dict['plot'] = {
+    128: data_base + "T=100,niu=0.01,N=128,dt=0.01,6pi,dtsave=0.06,sample=1600_ut.pt",
+    1024: {
+        400: data_base + "T=100,niu=0.01,N=1024,dt=0.001,6pi,dtsave=0.1,sample=200(68)._test_ut.pt",
+    },
+    'range': data_base + 'ks_stat_uv_emp_range.pt'  # leave as-is, may need to generate
+}
+
+data_dict['ks'] = ks_dict
+
+# PDE info
+pde_info = {}
+pde_ks = {
+    'domain': [[0, 6*mt.pi]],
+    'pde_dim': 1,
+    'pde_dim_pino': 2,
+    'function_dim': 1,
+    'L': [6*mt.pi]
+}
+pde_info['ks'] = pde_ks
+
+# Model paths (unchanged)
+model_dict = {
+    128: {200: model_base + 'model_cgs.pt'},
+    1024: {200: model_base + 'model_frs.pt'},
+    'pde': {'200_15k': model_base + 'model_pde.pt'}
+}
+
