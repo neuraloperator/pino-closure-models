@@ -177,8 +177,6 @@ class Trainer:
                             sample[k] = v.to(self.device)
                 i = 0
                 out = self.model(**sample)
-                print('out shape is', out.shape)
-
                 pred = out[i, 0].detach().cpu()
                 truth = sample['y'][i, 0].detach().cpu()
                 error = pred - truth
@@ -310,8 +308,6 @@ class Trainer:
                 if renew_opt:
                     optimizer.load_state_dict(self.optdct1)
                     scheduler.load_state_dict(self.schdct)
-
-            print('avg_loss val is', avg_loss)
             self.losses.append(avg_loss)
             if epoch % self.log_test_interval == 0:
 
