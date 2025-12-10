@@ -505,15 +505,8 @@ class KS_eqn_loss(object):
 
         # compute u_t using Fourier continuation
         u=torch.cat([u0[:,0,0:1],u.squeeze(dim=1)],dim=1)
-        print(f"DEBUG: u shape before diff_y: {u.shape}")
-        print(f"DEBUG: fc_helper class: {type(self.fc_helper).__name__}")
-        print(f"DEBUG: fc_helper module: {type(self.fc_helper).__module__}")
         u_t = self.fc_helper.diff_y(u, self.domain_length[0])
-        print(f"DEBUG: u_t shape after diff_y: {u_t.shape}")
         Lv=torch.squeeze(fft.irfft(Lv,dim=-1),dim=1)
-        print(f"DEBUG:Lv shape: {Lv.shape}")
-        print(f"DEBUG:u_t[:,1:] shape: {u_t[:,1:].shape}")
-
         return torch.norm(Lv+u_t[:,1:],p=2)
 
 
