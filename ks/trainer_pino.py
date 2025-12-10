@@ -149,7 +149,6 @@ class Trainer:
             train_err = 0.0
 
             for idx, sample in enumerate(train_loader):###
-                print('this is idx/len(train_loader', idx/len(train_loader))
                 if self.callbacks:
                     self.callbacks.on_batch_start(idx=idx, sample=sample)
 
