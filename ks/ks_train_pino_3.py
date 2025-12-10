@@ -15,7 +15,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from neuralop import get_model
 # from neuralop.datasets import load_darcy_flow_small
 from neuralop.training import setup
-# from neuralop.training.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
+from ancillary.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
 from neuralop.utils import get_wandb_api_key, count_model_params
 import my_tools as myt
 

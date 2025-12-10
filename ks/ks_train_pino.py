@@ -17,7 +17,7 @@ from configmypy import ConfigPipeline, YamlConfig, ArgparseConfig
 from torch.nn.parallel import DistributedDataParallel as DDP
 from neuralop import get_model
 from neuralop.training import setup
-# from neuralop.training.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
+from ancillary.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
 from neuralop.utils import get_wandb_api_key, count_model_params
 import my_tools as myt
 
@@ -52,7 +52,10 @@ device, is_logger = setup(config)
 
 arch = config["arch"].lower()
 config_arch = config.get(arch)
+print('DEBUG:',config_arch)
+print('DEBUG:', config.keys())
 pde_case=pde_info[config.wandb.pde]
+
 
 pino_t_tag=0
 if 'pino' in config.wandb and config.wandb.pino:
