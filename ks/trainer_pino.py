@@ -286,8 +286,6 @@ class Trainer:
                             sample[k] = v.to(self.device)
                 i = 0
                 out = self.model(**sample)
-                print('out shape is', out.shape)
-
                 pred = out[i, 0].detach().cpu()
                 truth = sample['y'][i, 0].detach().cpu()
                 error = pred - truth
