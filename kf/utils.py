@@ -7,7 +7,7 @@ import warnings
 import torch.nn as nn
 
 class FCGram(nn.Module):
-    def __init__(self, d=5, n_additional_pts=50, matrices_path=None):
+    def __init__(self, d=5, n_additional_pts=50):
         super().__init__()
 
         self.d=d
@@ -18,20 +18,11 @@ class FCGram(nn.Module):
             self.n_additional_pts -= 1
         self.C = int(self.n_additional_pts//2)
 
-        if matrices_path is None:
-            self.matrices_path = Path("~/pino-closure-models/neuraloperator/neuraloperator/neuralop/layers/FCGram_matrices")
-        else:
-            self.matrices_path = Path(matrices_path)
-
         self.load_matrices()
 
 
     def load_matrices(self):
-        filepath = Path(__file__).resolve().parent.joinpath('fcgram_matrices/FCGram_data_d5_c25.npz')
-
-        if not filepath.exists():
-            # Fallback to NERSC path if local doesn't exist
-            filepath = Path('/global/homes/y/ypincha/pino-closure-models/kf/fcgram_matrices/FCGram_data_d5_c25.npz')
+        filepath = Path(__file__).resolve().parent.joinpath('../ancillary/fcgram_matrices/FCGram_data_d5_c25.npz')
 
         npz_data = np.load(str(filepath))
 
@@ -122,14 +113,14 @@ class FCGram(nn.Module):
         return x[(Ellipsis,) + (slice(c, -c),)*dim]
 
 class FC2D(nn.Module):
-    def __init__(self, d=5, n_additional_pts=50, Lx=1.0, Ly=1.0, matrices_path=None, device="cpu"):
+    def __init__(self, d=5, n_additional_pts=50, Lx=1.0, Ly=1.0, device="cpu"):
         super().__init__()
         self.d = d
         self.n_additional_pts = n_additional_pts
         self.Lx = Lx
         self.Ly = Ly
         self.device = device
-        self.fcgram = FCGram(d=d, n_additional_pts=n_additional_pts, matrices_path=matrices_path).to(device)
+        self.fcgram = FCGram(d=d, n_additional_pts=n_additional_pts).to(device)
 
     def _fft_derivative(self, u, order_x=0, order_y=0, Lx=None, Ly=None):
         if Lx is None: Lx = self.Lx
@@ -188,9 +179,9 @@ class FC3D(object):
         self.d = d
         self.C = C
         self.A = torch.from_numpy(scipy.io.loadmat(Path(__file__).resolve().parent.joinpath( \
-              "fc_data/A_d" + str(d) + "_C" + str(C) + ".mat"))['A']).double()
+              "../ancillary/fc_data/A_d" + str(d) + "_C" + str(C) + ".mat"))['A']).double()
         self.Q = torch.from_numpy(scipy.io.loadmat(Path(__file__).resolve().parent.joinpath( \
-              "fc_data/Q_d" + str(d) + "_C" + str(C) + ".mat"))['Q']).double()
+              "../ancillary/fc_data/Q_d" + str(d) + "_C" + str(C) + ".mat"))['Q']).double()
         # if device == 'cuda':
         self.A = self.A.cuda()
         self.Q = self.Q.cuda()

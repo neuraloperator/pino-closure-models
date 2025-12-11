@@ -120,34 +120,27 @@ class FC2D(object):
         return uy
 '''
 class FCGram(nn.Module):
-    def __init__(self, d=5, n_additional_pts=50, matrices_path=None):
+    def __init__(self, d=5, n_additional_pts=50):
         super().__init__()
-        
+
         self.d=d
-        self.n_additional_pts=n_additional_pts 
-        
+        self.n_additional_pts=n_additional_pts
+
         if self.n_additional_pts%2==1:
             warnings.warn("n_additional_pts must be even, rounding down.", UserWarning)
             self.n_additional_pts -= 1
         self.C = int(self.n_additional_pts//2)
-        
-        if matrices_path is None:
-            self.matrices_path = Path("~/pino-closure-models/neuraloperator/neuraloperator/neuralop/layers/FCGram_matrices")
-        else:
-            self.matrices_path = Path(matrices_path)
-        
+
         self.load_matrices()
 
     
     def load_matrices(self):
-        filepath = '/global/homes/y/ypincha/pino-closure-models/ks/fcgram_matrices/FCGram_data_d5_c25.npz'
-        
+        filepath = Path(__file__).resolve().parent.joinpath('../ancillary/fcgram_matrices/FCGram_data_d5_c25.npz')
 
         npz_data = np.load(str(filepath))
-        
+
         self.register_buffer('ArQr', torch.from_numpy(npz_data['ArQr']))
         self.register_buffer('AlQl', torch.from_numpy(npz_data['AlQl']))
-        
     
     def extend_left_right(self, x):
         # extract boundary values for continuation, use d points from each boundary
@@ -232,14 +225,14 @@ class FCGram(nn.Module):
         return x[(Ellipsis,) + (slice(c, -c),)*dim]
     
 class FC2D(nn.Module):
-    def __init__(self, d=5, n_additional_pts=50, Lx=1.0, Ly=1.0, matrices_path=None, device="cpu"):
+    def __init__(self, d=5, n_additional_pts=50, Lx=1.0, Ly=1.0, device="cpu"):
         super().__init__()
         self.d = d
         self.n_additional_pts = n_additional_pts
         self.Lx = Lx
         self.Ly = Ly
         self.device = device
-        self.fcgram = FCGram(d=d, n_additional_pts=n_additional_pts, matrices_path=matrices_path).to(device)
+        self.fcgram = FCGram(d=d, n_additional_pts=n_additional_pts).to(device)
 
     def _fft_derivative(self, u, order_x=0, order_y=0, Lx=None, Ly=None):
         if Lx is None: Lx = self.Lx
