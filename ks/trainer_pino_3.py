@@ -7,10 +7,10 @@ import neuralop
 import neuralop.mpu.comm as comm
 
 from losses import LpLoss
-from neuralop.training.callbacks import PipelineCallback
+# from neuralop.training.callbacks import PipelineCallback
 
 from itertools import cycle
-
+import matplotlib.pyplot as plt
 
 class Trainer:
     def __init__(self, *, 
@@ -81,7 +81,7 @@ class Trainer:
         self.optdct=optdct
         self.optdct1=opt_mid_dct
         self.schdct=schdct
-
+        self.losses = []
         if self.callbacks:
             self.callbacks.on_init_end(model=model, 
                  n_epochs=n_epochs, 
@@ -155,7 +155,6 @@ class Trainer:
                 self.callbacks.on_epoch_start(epoch=epoch)
 
             loader128_iter=cycle(train_loader_128)
-
             avg_loss = 0
             avg_lasso_loss = 0
             self.model.train()###
@@ -176,9 +175,32 @@ class Trainer:
                     for k,v in sample.items():
                         if hasattr(v, 'to'):
                             sample[k] = v.to(self.device)
+                i = 0
+                out = self.model(**sample)
+                pred = out[i, 0].detach().cpu()
+                truth = sample['y'][i, 0].detach().cpu()
+                error = pred - truth
+
+                fig, axs = plt.subplots(1, 3, figsize=(12, 4))
+
+                im0 = axs[0].imshow(pred, cmap='viridis', aspect='auto', origin='lower')
+                axs[0].set_title('prediction')
+                plt.colorbar(im0, ax=axs[0], fraction=0.046, pad=0.04)
+
+                im1 = axs[1].imshow(truth, cmap='viridis', aspect='auto', origin='lower')
+                axs[1].set_title('ground truth')
+                plt.colorbar(im1, ax=axs[1], fraction=0.046, pad=0.04)
+
+                im2 = axs[2].imshow(error, cmap='RdBu_r', aspect='auto', origin='lower')
+                axs[2].set_title('error pred-truth')
+                plt.colorbar(im2, ax=axs[2], fraction=0.046, pad=0.04)
+
+                plt.tight_layout()
+                plt.savefig('pred.png', dpi=200)
+                plt.close(fig)
 
                 optimizer.zero_grad(set_to_none=True)
-                if regularizer:####
+                if regularizer:
                     regularizer.reset()
 
                 if self.amp_autocast:
@@ -260,8 +282,7 @@ class Trainer:
                         loss+=lam128*lossq
                     use_loader=use_loader_1024
                 loss.backward()
-
-
+          
                 optimizer.step()
                 train_err += loss.item()
         
@@ -287,8 +308,7 @@ class Trainer:
                 if renew_opt:
                     optimizer.load_state_dict(self.optdct1)
                     scheduler.load_state_dict(self.schdct)
-
-
+            self.losses.append(avg_loss)
             if epoch % self.log_test_interval == 0:
 
                 if self.callbacks:
@@ -304,7 +324,9 @@ class Trainer:
             
             if self.callbacks:
                 self.callbacks.on_epoch_end(epoch=epoch, train_err=train_err, avg_loss=avg_loss)
-
+            plt.plot(self.losses)
+            plt.yscale('log')
+            plt.savefig('losses.png')
     def evaluate(self, loss_dict, data_loader,
                  log_prefix='',losstype='sum'):
         """Evaluates the model on a dictionary of losses

@@ -2,7 +2,7 @@ import torch
 import math
 
 from timeit import default_timer
-
+import os
 from pdes_periodic import NavierStokes2d
 from random_fields import GaussianRF2d
 
@@ -67,5 +67,5 @@ tt2=tm.time()
 
 # ''' for random init only'''
 # torch.save(vor.squeeze(dim=1), 'data/KF_re100_1000trj_16dx_random_ini(1).pt')
-
+os.makedirs('data', exist_ok=True)
 torch.save(vor, f'data/re{re}_grid={s}_{dsct}_N={N}_dt={dt_save}_Ttj={start_save}-{t_traj_phy}_(3).pt')

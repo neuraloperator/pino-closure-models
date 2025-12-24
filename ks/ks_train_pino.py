@@ -17,7 +17,7 @@ from configmypy import ConfigPipeline, YamlConfig, ArgparseConfig
 from torch.nn.parallel import DistributedDataParallel as DDP
 from neuralop import get_model
 from neuralop.training import setup
-from neuralop.training.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
+from ancillary.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
 from neuralop.utils import get_wandb_api_key, count_model_params
 import my_tools as myt
 
@@ -52,7 +52,10 @@ device, is_logger = setup(config)
 
 arch = config["arch"].lower()
 config_arch = config.get(arch)
+print('DEBUG:',config_arch)
+print('DEBUG:', config.keys())
 pde_case=pde_info[config.wandb.pde]
+
 
 pino_t_tag=0
 if 'pino' in config.wandb and config.wandb.pino:
@@ -63,6 +66,7 @@ if 'pino' in config.wandb and config.wandb.pino:
 else:
     config_arch.data_channels=pde_case['pde_dim']+pde_case['function_dim']
     config_arch.domain = pde_case['domain']
+config_arch.out_channels = pde_case['pde_dim']  # usually 1 for KS
 
 if config.wandb.log and is_logger:
     wandb.login(key=get_wandb_api_key())
@@ -227,6 +231,21 @@ for key in ['train','test']:
 del alldata
 #del alldata
 
+config.model = {
+    "model_arch": config.arch,  # 'tfno'
+    "n_modes": config.tfno["n_modes"],
+    "hidden_channels": config.tfno["hidden_channels"],
+    "n_layers": config.tfno["n_layers"],
+    "domain_padding": config.tfno["domain_padding"],
+    "norm": config.tfno["norm"],
+    "implementation": config.tfno["implementation"],
+    "separable": config.tfno["separable"],
+    "preactivation": config.tfno["preactivation"],
+    "data_channels": config_arch.data_channels,
+    "out_channels": config_arch.out_channels,
+
+}
+
 model = get_model(config)
 model = model.to(device)
 
@@ -318,16 +337,17 @@ trainer = Trainer(
     use_distributed=config.distributed.use_distributed,
     verbose=config.verbose and is_logger,
     callbacks=[
-        MGPatchingCallback(levels=config.patching.levels,
-                                  padding_fraction=config.patching.padding,
-                                  stitching=config.patching.stitching,
-                                  encoder=output_encoder),
-        SimpleWandBLoggerCallback(**wandb_args)
+        # MGPatchingCallback(levels=config.patching.levels,
+        #                           padding_fraction=config.patching.padding,
+        #                           stitching=config.patching.stitching,
+        #                           encoder=output_encoder),
+        # SimpleWandBLoggerCallback(**wandb_args)
               ]
               )
 
 # Log parameter count
 if is_logger:
+    wandb.init()
     n_params = count_model_params(model)
 
     if config.verbose:

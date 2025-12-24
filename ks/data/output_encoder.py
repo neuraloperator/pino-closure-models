@@ -1,6 +1,6 @@
 import sys
-# import neuralop_base
-# sys.modules['neuralop'] = neuralop_base
+import neuralop
+sys.modules['neuralop'] = neuralop
 from neuralop.utils import count_tensor_params
 from abc import abstractmethod
 from collections.abc import Iterable

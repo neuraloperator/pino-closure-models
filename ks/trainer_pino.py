@@ -5,9 +5,9 @@ import pathlib
 import sys
 import neuralop
 import neuralop.mpu.comm as comm
-
+import matplotlib.pyplot as plt
 from losses import LpLoss
-from neuralop.training.callbacks import PipelineCallback
+# from neuralop.training.callbacks import PipelineCallback
 
 
 class Trainer:
@@ -43,7 +43,7 @@ class Trainer:
 
         if callbacks:
             assert type(callbacks) == list, "Callbacks must be a list of Callback objects"
-            self.callbacks = PipelineCallback(callbacks=callbacks)
+            # self.callbacks = PipelineCallback(callbacks=callbacks)
             self.override_load_to_device = (self.callbacks.device_load_callback_idx is not None)
             self.overrides_loss = self.callbacks.overrides_loss
         else:
@@ -139,7 +139,6 @@ class Trainer:
             is_logger = True 
         
         for epoch in range(self.n_epochs):
-
             if self.callbacks:
                 self.callbacks.on_epoch_start(epoch=epoch)
 
@@ -150,7 +149,6 @@ class Trainer:
             train_err = 0.0
 
             for idx, sample in enumerate(train_loader):###
-
                 if self.callbacks:
                     self.callbacks.on_batch_start(idx=idx, sample=sample)
 
@@ -267,7 +265,6 @@ class Trainer:
         self.model.eval()
 
         errors = {f'{log_prefix}_{loss_name}':0 for loss_name in loss_dict.keys()}
-
         n_samples = 0
         with torch.no_grad():
             for idx, sample in enumerate(data_loader[0]):
@@ -287,8 +284,28 @@ class Trainer:
                     for k,v in sample.items():
                         if hasattr(v, 'to'):
                             sample[k] = v.to(self.device)
-
+                i = 0
                 out = self.model(**sample)
+                pred = out[i, 0].detach().cpu()
+                truth = sample['y'][i, 0].detach().cpu()
+                error = pred - truth
+
+                fig, axs = plt.subplots(1, 3, figsize=(12, 4))
+
+                im0 = axs[0].imshow(pred, cmap='viridis', aspect='auto', origin='lower')
+                axs[0].set_title('pred')
+                plt.colorbar(im0, ax=axs[0], fraction=0.046, pad=0.04)
+
+                im1 = axs[1].imshow(truth, cmap='viridis', aspect='auto', origin='lower')
+                axs[1].set_title('ground truth')
+                plt.colorbar(im1, ax=axs[1], fraction=0.046, pad=0.04)
+                im2 = axs[2].imshow(error, cmap='RdBu_r', aspect='auto', origin='lower')
+                axs[2].set_title('pred-truth')
+                plt.colorbar(im2, ax=axs[2], fraction=0.046, pad=0.04)
+
+                plt.tight_layout()
+                plt.savefig('pred.png', dpi=200)
+                plt.close(fig)
 
                 if self.callbacks:
                     self.callbacks.on_before_val_loss(out=out)
@@ -308,9 +325,7 @@ class Trainer:
                     errors[f'{log_prefix}_{loss_name}'] += val_loss
 
                 if self.callbacks:
-                    self.callbacks.on_val_batch_end()
-        
-        del y, out
+                    self.callbacks.on_val_batch_end()        
 
         for key in errors.keys():
             if losstype=='sum':

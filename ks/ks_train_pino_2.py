@@ -19,7 +19,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from neuralop import get_model
 
 from neuralop.training import setup
-from neuralop.training.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
+from ancillary.callbacks import MGPatchingCallback, SimpleWandBLoggerCallback
 from neuralop.utils import get_wandb_api_key, count_model_params
 import my_tools as myt
 
@@ -338,10 +338,10 @@ trainer = Trainer(
     use_distributed=config.distributed.use_distributed,
     verbose=config.verbose and is_logger,
     callbacks=[
-        MGPatchingCallback(levels=config.patching.levels,
-                                  padding_fraction=config.patching.padding,
-                                  stitching=config.patching.stitching,
-                                  encoder=output_encoder),
+        # MGPatchingCallback(levels=config.patching.levels,
+        #                           padding_fraction=config.patching.padding,
+        #                           stitching=config.patching.stitching,
+        #                           encoder=output_encoder),
         SimpleWandBLoggerCallback(**wandb_args)
               ]
               )

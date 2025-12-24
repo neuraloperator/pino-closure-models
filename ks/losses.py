@@ -468,7 +468,8 @@ class KS_eqn_loss(object):
         self.k=(torch.arange(1026)*(1j*2*torch.pi/self.domain_length[1])).to(self.device) # include j
         self.coeff=self.k**2+self.visc*self.k**4
         if self.method in ['t_fc_x_f']:
-            self.fc_helper = FC2D(device, d, C)
+            # self.fc_helper = FC2D(device, d, C) legacy class design
+            self.fc_helper = FC2D(d=d, n_additional_pts=2*C, device=device)
         self.out_func=getattr(self,self.method)
 
     def t_fd_x_f(self,u,u0):
@@ -502,14 +503,10 @@ class KS_eqn_loss(object):
         nonl = 0.5 * torch.pow(u, 2)
         Lv += fft.rfft(nonl, dim=-1) * self.k[:k_use]
 
-
         # compute u_t using Fourier continuation
         u=torch.cat([u0[:,0,0:1],u.squeeze(dim=1)],dim=1)
         u_t = self.fc_helper.diff_y(u, self.domain_length[0])
-
-
         Lv=torch.squeeze(fft.irfft(Lv,dim=-1),dim=1)
-
         return torch.norm(Lv+u_t[:,1:],p=2)
 
 

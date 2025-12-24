@@ -469,7 +469,8 @@ class KS_eqn_loss(object):
         self.k=(torch.arange(1026)*(1j*2*torch.pi/self.domain_length[1])).to(self.device) # include j
         self.coeff=self.k**2+self.visc*self.k**4
         if self.method in ['t_fc_x_f']:
-            self.fc_helper = FC2D(device, d, C)
+            # self.fc_helper = FC2D(device, d, C) legacy class design
+            self.fc_helper = FC2D(d=d, n_additional_pts=2*C, device=device)
         self.out_func=getattr(self,self.method)
 
     def t_fd_x_f(self,u,u0):

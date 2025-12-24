@@ -13,7 +13,7 @@ import my_tools as myt
 import neuralop.mpu.comm as comm
 
 from losses import LpLoss
-from neuralop.training.callbacks import PipelineCallback
+from ancillary.callbacks import PipelineCallback
 
 import time as tm
 class Trainer:

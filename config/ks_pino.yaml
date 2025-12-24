@@ -14,45 +14,40 @@ default: &DEFAULT
     model_parallel_size: 2
     seed: 666
 
-  # FNO related
   tfno:
-    n_modes: [16,64] #for t,x
-    data_channels: None #will be determined by pde-onfo, see config_arch in main_code #1(pde)+1(dim:postion)  (i.e. in_channels, but should use the name data_ here (model_dispatcher L55))
-    # data_channels: 3
-    # n_modes_height: 16
-    # n_modes_width: 16
+    n_modes: [16,64]
+    data_channels: 3  # 2 from pde_dim_pino + 1 from function_dim, as example
     hidden_channels: 32
-    projection_channels: 64
+    # projection_channels: 64
     n_layers: 4
-    domain_padding: [0.068125,0] #0.078125 #None (one-sided padding the time dimension for accurate dericvative)
-    domain_padding_mode: 'one-sided' #symmetric
+    domain_padding: [0.068125,0]
+    domain_padding_mode: 'one-sided'
     fft_norm: 'forward'
     norm: 'group_norm'
     skip: 'linear'
     implementation: 'factorized'
     separable: 0
     preactivation: 0
-    
     use_mlp: 1
     mlp:
-        expansion: 0.5
-        dropout: 0
-
+      expansion: 0.5
+      dropout: 0
     factorization: None
     rank: 1.0
     fixed_rank_modes: None
     dropout: 0.0
     tensor_lasso_penalty: 0.0
     joint_factorization: False
-    fno_block_precision: 'full' # or 'half', 'mixed'
-    stabilizer: None # or 'tanh'
+    fno_block_precision: 'full'
+    stabilizer: None
+
 
   # Optimizer
   opt:
     n_epochs: 1000 
     learning_rate: 5e-2 # 5e-3
     training_loss: 'l2'
-    loss_type: 'sum' #'mean' or sum
+    loss_type: 'mean' #'mean' or sum
     weight_decay: 1e-4 #1e-4 # 1e-4
     amp_autocast: False
     scheduler_T_max: 500 # For cosine only, typically take n_epochs
@@ -97,8 +92,8 @@ default: &DEFAULT
     log: True
     name: None # If None, config will be used but you can override it here
     group: '' 
-    project: # add project name here
-    entity:  # add your username here
+    project: pino-closure-models # add project name here
+    entity:  yashpincha-icl # add your username here
     sweep: False
     log_output: True
     log_test_interval: 1

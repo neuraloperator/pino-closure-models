@@ -18,12 +18,12 @@ norm='forward'#FFT norm
 
 '''Basic Setting for generating dataset'''
 niu=0.01
-Nsum=1# number of trajectories to generate
+Nsum=1600# number of trajectories to generate
 
-tmax=150#00 # Simulations on t\in [0,tmax]
-N=1024 #space grid size
-N_proj=1024 # no use in the experiment
-timegrid=0.001
+tmax=100#00 # Simulations on t\in [0,tmax]
+N=128 #space grid size
+N_proj=128 # no use in the experiment
+timegrid=0.01
 
 half_period=3 #domain=2pi*half_period, basis =e^{k x/half_period}
 space_scaling=half_period*2*torch.pi # original=1,correct=32pi or 32k pi
@@ -51,5 +51,3 @@ eta_stb_change=0.10
 
 
 file_name=f"T={tmax},niu={niu},N={N},dt={timegrid},6pi,dtsave={dt_save},sample={Nsum}"
-
-
